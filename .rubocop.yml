@@ -1,0 +1,31 @@
+AllCops:
+  Exclude:
+    - "spec/spec_helper.rb"
+  NewCops: enable
+Metrics/BlockLength:
+  Exclude:
+    - "spec/*"
+Layout/LineLength:
+  Exclude:
+    - "spec/*"
+Style/WordArray:
+  Exclude:
+    - "spec/*"
+Style/BlockDelimiters:
+  Exclude:
+    - "spec/*"
+Layout/MultilineBlockLayout:
+  Exclude:
+    - "spec/*"
+Layout/BlockAlignment:
+  Exclude:
+    - "spec/*"
+Layout/BlockEndNewline:
+  Exclude:
+    - "spec/*"
+Metrics/AbcSize:
+  Exclude:
+    - "lib/*"
+Metrics/MethodLength:
+  Exclude:
+    - "lib/*"
