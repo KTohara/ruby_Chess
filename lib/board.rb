@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'pieces'
+
 # Board logic
 class Board
-  attr_reader :rows
+  attr_reader :grid
 
   def initialize
     @null_piece = nil
@@ -29,13 +31,15 @@ class Board
     pos.all? { |axis| axis.between?(0, 7) }
   end
 
-  def empty?(pos)
+  def empty?(pos); end
 
-  end
+  def add_piece(piece, pos); end
 
-  # def add_piece(piece, pos)
+  def checkmate?; end
 
-  # end
+  def check?; end
+
+  private
 
   def create_board
     %i[white black].each do |color|
@@ -45,10 +49,26 @@ class Board
   end
 
   def fill_back_row(color)
-      
+    back_pieces = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook] # placeholder piece for now
+
+    row = color == :black ? 0 : 7
+    back_pieces.each_with_index do |piece, col|
+      pos = row, col
+      self[pos] = piece.new(color)
+    end
   end
 
   def fill_pawns_row(color)
-  
+    row = color == :black ? 1 : 6
+    (0..7).each do |col|
+      pos = row, col
+      self[pos] = Pawn.new(color)
+    end
+  end
+
+  # temp render method
+  def to_s
+    render = grid.map { |row| row.map(&:to_s) }
+    render.each { |row| puts row.join }
   end
 end
