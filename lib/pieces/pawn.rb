@@ -2,6 +2,7 @@
 
 require_relative 'piece'
 
+# Pawn logic
 class Pawn < Piece
   def symbol
     '♟'.color(color)

@@ -2,6 +2,7 @@
 
 require_relative 'piece'
 
+# Queen logic
 class Queen < Piece
   def symbol
     '♛'.color(color)

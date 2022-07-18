@@ -4,7 +4,8 @@ require_relative '../color'
 
 # Chess piece superclass
 class Piece
-  attr_reader :color, :board, :pos
+  attr_reader :color, :board
+  attr_accessor :pos
 
   def initialize(color, board, pos)
     @color = color
@@ -24,11 +25,7 @@ class Piece
   #   # subclass placeholder method for unicode chars
   # end
 
-  def moves
-    []
-  end
-
-  def valid_moves
-    board.grid
-  end
+  # def moves
+  #   []
+  # end
 end

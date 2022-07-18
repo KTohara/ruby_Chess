@@ -2,6 +2,7 @@
 
 require_relative 'piece'
 
+# Rook logic
 class Rook < Piece
   def symbol
     '♜'.color(color)

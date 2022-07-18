@@ -7,8 +7,7 @@ class Board
   attr_reader :grid
 
   def initialize
-    @null_piece = NullPiece.instance
-    @grid = Array.new(8) { Array.new(8, null_piece) }
+    @grid = Array.new(8) { Array.new(8, NullPiece.new) }
     create_board
   end
 
@@ -30,16 +29,15 @@ class Board
     raise 'Square is empty' if empty?(start_pos)
 
     picked_piece = self[start_pos]
-    ending_cell = self[end_pos]
-
     if picked_piece.color != color
       raise 'You must move your own pieces'
-    elsif !picked_piece.valid_moves.include?(end_pos)
-      raise 'Invalid move for this piece'
+      # elsif !picked_piece.valid_moves.include?(end_pos)
+      #   raise 'Invalid move for this piece'
     end
 
-    self[start_pos] = null_piece
     self[end_pos] = picked_piece
+    self[start_pos] = NullPiece.new
+    picked_piece.pos = end_pos
   end
 
   def valid_pos?(pos)
@@ -49,8 +47,6 @@ class Board
   def empty?(pos)
     self[pos].empty?
   end
-
-  # def add_piece(piece, pos); end
 
   def checkmate?; end
 
@@ -88,12 +84,16 @@ class Board
   # temp render method
   def to_s
     render = grid.map { |row| row.map(&:to_s) }
-    render.each { |row| puts row.join }
+    render.each.with_index { |row, row_num| puts "#{row_num} #{row.join}" }
+    puts '   0  1  2  3  4  5  6  7 '
   end
 end
 
-b = Board.new
-puts b
-p b.empty?([3, 0])
-p b.move_piece(:white, [7, 3], [3, 3])
-puts b
+# b = Board.new
+# b.move_piece(:black, [0, 4], [5, 4])
+# b.move_piece(:black, [0, 1], [5, 3])
+# king = b[[5, 4]]
+# knight = b[[5, 3]]
+# puts b
+# p king.moves
+# p knight.moves
