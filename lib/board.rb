@@ -69,7 +69,7 @@ class Board
     row = color == :black ? 0 : 7
     back_pieces.each_with_index do |piece, col|
       pos = row, col
-      self[pos] = piece.new(color, self, pos)
+      self[pos] = piece.new(color, pos)
     end
   end
 
@@ -77,7 +77,7 @@ class Board
     row = color == :black ? 1 : 6
     8.times do |col|
       pos = row, col
-      self[pos] = Pawn.new(color, self, pos)
+      self[pos] = Pawn.new(color, pos)
     end
   end
 
@@ -95,5 +95,7 @@ end
 # king = b[[5, 4]]
 # knight = b[[5, 3]]
 # puts b
-# p king.moves
-# p knight.moves
+# p king.valid_moves(b)
+# p knight.valid_moves(b)
+# p king.valid_captures(b)
+# p knight.valid_captures(b)

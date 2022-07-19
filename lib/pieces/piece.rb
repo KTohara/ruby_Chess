@@ -7,10 +7,12 @@ class Piece
   attr_reader :color, :board
   attr_accessor :pos
 
-  def initialize(color, board, pos)
+  def initialize(color, pos)
     @color = color
-    @board = board
     @pos = pos
+    @moves = []
+    @captures = []
+    @moved = false
   end
 
   def to_s
@@ -21,11 +23,24 @@ class Piece
     false
   end
 
-  # def symbol
-  #   # subclass placeholder method for unicode chars
-  # end
+  private
 
-  # def moves
-  #   []
-  # end
+  def valid_location?(pos)
+    pos.all? { |coord| coord.between?(0, 7) }
+  end
+  require 'byebug'
+  def enemy?(piece)
+    return false if piece.color == :none
+
+    enemy_color = color == :white ? :black : :white
+    piece.color == enemy_color
+  end
+
+  def empty_location?(coord)
+    coord.empty?
+  end
+
+  def symbol
+    # subclass placeholder method for unicode chars
+  end
 end

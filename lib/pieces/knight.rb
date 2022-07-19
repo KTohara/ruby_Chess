@@ -11,7 +11,7 @@ class Knight < Piece
     '♞'.color(color)
   end
 
-  # #moves in module StepPiece
+  private
 
   def move_set
     [[-2, 1], [-1, 2], [1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1]]
