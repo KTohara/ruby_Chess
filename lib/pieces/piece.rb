@@ -28,12 +28,16 @@ class Piece
   def valid_location?(pos)
     pos.all? { |coord| coord.between?(0, 7) }
   end
-  require 'byebug'
+
   def enemy?(piece)
     return false if piece.color == :none
 
     enemy_color = color == :white ? :black : :white
     piece.color == enemy_color
+  end
+
+  def ally?(piece)
+    piece.color == color
   end
 
   def empty_location?(coord)

@@ -90,12 +90,9 @@ class Board
 end
 
 # b = Board.new
-# b.move_piece(:black, [0, 4], [5, 4])
-# b.move_piece(:black, [0, 1], [5, 3])
-# king = b[[5, 4]]
-# knight = b[[5, 3]]
+# b.move_piece(:black, [0, 3], [5, 4])
+# # b.move_piece(:black, [0, 1], [5, 3])
+# queen = b[[5, 4]]
 # puts b
-# p king.valid_moves(b)
-# p knight.valid_moves(b)
-# p king.valid_captures(b)
-# p knight.valid_captures(b)
+# p queen.valid_moves(b)
+# puts b

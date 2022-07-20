@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# require 'pieces/step_piece'
 require 'pieces/piece'
 require 'pieces/king'
 require 'pieces/nullpiece'
@@ -57,65 +56,12 @@ describe King do
       end
     end
 
-    context 'when the king has 3 white pieces and 5 empty spaces surrounding it' do
+    context 'when king has 3 captures and 1 move available' do
       subject(:bki) { described_class.new(:black, [1, 4]) }
       let(:grid) do
         [
-          [nil, nil, nil, wpc, emp, emp, nil, nil],
-          [nil, nil, nil, emp, bki, wpc, nil, nil],
-          [nil, nil, nil, emp, wpc, emp, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil]
-        ]
-      end
-
-      it 'should not include any positions with an opponent piece' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = bki.valid_moves(board)
-        expect(valid_moves).to contain_exactly([0, 4], [0, 5], [1, 3], [2, 3], [2, 5])
-      end
-    end
-
-    it 'should handle king side castling'
-    it 'should handle queen side castling'
-    it 'cannot castle if there is a piece between rooks'
-    it 'cannot castle if the king or rook has been moved'
-    it 'cannot castle if it is in check'
-    it 'cannot go in a move that would enable a check or checkmate'
-  end
-
-  describe '#valid_captures' do
-    context 'when king has 0 captures' do
-      subject(:bki) { described_class.new(:black, [1, 4]) }
-      let(:grid) do
-        [
-          [nil, nil, nil, bpc, bpc, bpc, nil, nil],
-          [nil, nil, nil, bpc, bki, bpc, nil, nil],
-          [nil, nil, nil, bpc, bpc, bpc, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil]
-        ]
-      end
-
-      it 'returns an empty array' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_captures = bki.valid_captures(board)
-        expect(valid_captures).to be_empty
-      end
-    end
-
-    context 'when king has 3 captures' do
-      subject(:bki) { described_class.new(:black, [1, 4]) }
-      let(:grid) do
-        [
-          [nil, nil, nil, wpc, emp, emp, nil, nil],
-          [nil, nil, nil, emp, bki, wpc, nil, nil],
+          [nil, nil, nil, wpc, emp, bpc, nil, nil],
+          [nil, nil, nil, bpc, bki, wpc, nil, nil],
           [nil, nil, nil, bpc, wpc, bpc, nil, nil],
           [nil, nil, nil, nil, nil, nil, nil, nil],
           [nil, nil, nil, nil, nil, nil, nil, nil],
@@ -125,13 +71,18 @@ describe King do
         ]
       end
 
-      it 'returns an array with 3 moves' do
+      it 'returns 4 moves' do
         allow(board).to receive(:grid).and_return(grid)
-        valid_captures = bki.valid_captures(board)
-        expect(valid_captures).to contain_exactly([0, 3], [1, 5], [2, 4])
+        valid_moves = bki.valid_moves(board)
+        expect(valid_moves).to contain_exactly([0, 3], [0, 4], [1, 5], [2, 4])
       end
     end
 
-    it 'will not return moves that enable a check or checkmate'
+    it 'should handle king side castling'
+    it 'should handle queen side castling'
+    it 'cannot castle if there is a piece between rooks'
+    it 'cannot castle if the king or rook has been moved'
+    it 'cannot castle if it is in check'
+    it 'cannot go in a move that would enable a check or checkmate'
   end
 end
