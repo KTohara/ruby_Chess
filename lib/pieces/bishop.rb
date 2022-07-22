@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require_relative 'piece'
-require_relative 'slide_piece'
+require_relative 'sliding'
 
 # Bishop logic
 class Bishop < Piece
-  include SlidePiece
+  include Sliding
 
   def symbol
     '♝'.color(color)

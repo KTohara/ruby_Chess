@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # move logic for rook/bishop/queen
-module SlidePiece
+module Sliding
   HORIZONTAL_AND_VERTICAL_DIRS = [[-1, 0], [0, -1], [0, 1], [1, 0]].freeze
   DIAGONAL_DIRS = [[-1, -1], [-1, 1], [1, -1], [1, 1]].freeze
 
@@ -15,7 +15,6 @@ module SlidePiece
 
   def valid_moves(board)
     @moves = move_set.each_with_object([]) do |set_pos, possible_moves|
-      row, col = pos
       sx, sy = set_pos
       new_pos = [row + sx, col + sy]
       directional_moves = check_move_dir(new_pos, set_pos, board.grid)
@@ -26,15 +25,15 @@ module SlidePiece
   private
 
   def check_move_dir(new_pos, set_pos, grid, moves = [])
-    row, col = new_pos
+    nx, ny = new_pos
     sx, sy = set_pos
-    while valid_location?([row, col])
-      coord = grid[row][col]
-      moves << [row, col] if enemy?(coord) || empty_location?(coord)
+    while valid_location?(new_pos)
+      coord = grid[nx][ny]
+      moves << [nx, ny] if enemy?(coord) || empty_location?(coord)
       break if ally?(coord) || enemy?(coord)
 
-      row += sx
-      col += sy
+      nx += sx
+      ny += sy
     end
     moves
     # moves.each { |el| grid[el[0]][el[1]] = ' m ' }

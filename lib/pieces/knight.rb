@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require_relative 'piece'
-require_relative 'step_piece'
+require_relative 'stepping'
 
 # Knight logic
 class Knight < Piece
-  include StepPiece
+  include Stepping
 
   def symbol
     '♞'.color(color)

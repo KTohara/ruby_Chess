@@ -4,10 +4,11 @@ require_relative 'pieces'
 
 # Board logic
 class Board
-  attr_reader :grid
+  attr_reader :grid, :last_move
 
   def initialize
     @grid = Array.new(8) { Array.new(8, NullPiece.new) }
+    @last_move = nil
     create_board
   end
 
@@ -26,18 +27,30 @@ class Board
   end
 
   def move_piece(color, start_pos, end_pos)
+    move_piece!(start_pos, end_pos) if valid_move?(color, start_pos, end_pos)
+  end
+
+  # test
+  def valid_move?(_color, start_pos, _end_pos)
     raise 'Square is empty' if empty?(start_pos)
 
-    picked_piece = self[start_pos]
-    if picked_piece.color != color
+    piece = self[start_pos]
+    if piece.enemy?
       raise 'You must move your own pieces'
-      # elsif !picked_piece.valid_moves.include?(end_pos)
+      # elsif !piece.valid_moves.include?(end_pos)
       #   raise 'Invalid move for this piece'
     end
 
-    self[end_pos] = picked_piece
+    true
+  end
+
+  # test
+  def move_piece!(start_pos, end_pos)
+    piece = self[start_pos]
+    self[end_pos] = piece
     self[start_pos] = NullPiece.new
-    picked_piece.pos = end_pos
+    piece.update(end_pos, board.grid)
+    @last_move = end_pos
   end
 
   def valid_pos?(pos)
@@ -93,6 +106,8 @@ end
 # b.move_piece(:black, [0, 3], [5, 4])
 # # b.move_piece(:black, [0, 1], [5, 3])
 # queen = b[[5, 4]]
+# pawn = b[[1, 2]]
 # puts b
 # p queen.valid_moves(b)
+# p pawn.jumps(b)
 # puts b

@@ -4,12 +4,14 @@ require_relative '../color'
 
 # Chess piece superclass
 class Piece
-  attr_reader :color, :board
+  attr_reader :color, :board, :moved, :row, :col
   attr_accessor :pos
 
   def initialize(color, pos)
     @color = color
     @pos = pos
+    @row = pos.first
+    @col = pos.last
     @moves = []
     @captures = []
     @moved = false
@@ -40,11 +42,27 @@ class Piece
     piece.color == color
   end
 
-  def empty_location?(coord)
-    coord.empty?
+  def empty_location?(piece)
+    piece.empty?
   end
 
   def symbol
     # subclass placeholder method for unicode chars
+  end
+
+  def update(pos, grid)
+    update_enpassant(grid) if instance_of?(Pawn)
+    update_moved
+    update_position(pos)
+  end
+
+  def update_moved
+    @moved = true
+  end
+
+  def update_position(pos)
+    @pos = pos
+    @row = pos.first
+    @col = pos.last
   end
 end
