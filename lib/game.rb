@@ -2,19 +2,20 @@
 
 require_relative 'board'
 require_relative 'player'
+require_relative 'display'
 
 # game flow
 class Game
-  # attr_reader :board, :player, :current_player, :display
+  attr_reader :board, :player, :current_player, :display
 
-  def initalize
+  def initialize
     @board = Board.new
-    #   @display = Display.new(@board)
-    #   @players = {
-    #     white: Player.new(:white, @display),
-    #     black: Player.new(:black, @display)
-    #   }
-    #   @current_player = :white
+    @display = Display.new(@board)
+    @players = {
+      white: Player.new(:white, @display),
+      black: Player.new(:black, @display)
+    }
+    @current_player = :white
   end
 
   def play
@@ -36,4 +37,9 @@ class Game
   end
 
   def switch_player; end
+end
+
+if $PROGRAM_NAME == __FILE__
+  g = Game.new
+  puts g.display
 end

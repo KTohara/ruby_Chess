@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../color'
+require_relative '../colors'
 
 # Chess piece superclass
 class Piece
@@ -18,11 +18,17 @@ class Piece
   end
 
   def to_s
-    " #{symbol} "
+    "░#{symbol}░"
   end
 
   def empty?
     false
+  end
+
+  def update(pos, grid)
+    update_enpassant(grid) if instance_of?(Pawn)
+    update_moved
+    update_position(pos)
   end
 
   private
@@ -48,12 +54,6 @@ class Piece
 
   def symbol
     # subclass placeholder method for unicode chars
-  end
-
-  def update(pos, grid)
-    update_enpassant(grid) if instance_of?(Pawn)
-    update_moved
-    update_position(pos)
   end
 
   def update_moved

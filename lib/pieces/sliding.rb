@@ -5,14 +5,6 @@ module Sliding
   HORIZONTAL_AND_VERTICAL_DIRS = [[-1, 0], [0, -1], [0, 1], [1, 0]].freeze
   DIAGONAL_DIRS = [[-1, -1], [-1, 1], [1, -1], [1, 1]].freeze
 
-  def horizontal_and_vertical_dir
-    HORIZONTAL_AND_VERTICAL_DIRS
-  end
-
-  def diagonal_dir
-    DIAGONAL_DIRS
-  end
-
   def valid_moves(board)
     @moves = move_set.each_with_object([]) do |set_pos, possible_moves|
       sx, sy = set_pos
@@ -23,6 +15,14 @@ module Sliding
   end
 
   private
+
+  def horizontal_and_vertical_dir
+    HORIZONTAL_AND_VERTICAL_DIRS
+  end
+
+  def diagonal_dir
+    DIAGONAL_DIRS
+  end
 
   def check_move_dir(new_pos, set_pos, grid, moves = [])
     nx, ny = new_pos
@@ -36,6 +36,5 @@ module Sliding
       ny += sy
     end
     moves
-    # moves.each { |el| grid[el[0]][el[1]] = ' m ' }
   end
 end

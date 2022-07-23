@@ -14,7 +14,7 @@ class Pawn < Piece
   end
 
   def symbol
-    '♟'.color(color)
+    color == :white ? '♙' : '♟'
   end
 
   def valid_moves(board)
@@ -92,10 +92,6 @@ class Pawn < Piece
     color == :white ? -1 : 1
   end
 
-  def first_move_double_jump?
-    moved == false && [1, 6].include?(piece.row - (pawn_direction * 2))
-  end
-
   def valid_en_passant?(grid, enemy_pos, end_pos, last_move)
     return false unless enemy_pos == last_move
 
@@ -104,5 +100,9 @@ class Pawn < Piece
     return false unless valid_location?(end_pos) && empty_location?(end_location)
 
     enemy?(enemy_pawn) && en_passant
+  end
+
+  def first_move_double_jump?
+    moved == false && [1, 6].include?(piece.row - (pawn_direction * 2))
   end
 end

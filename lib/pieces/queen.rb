@@ -8,7 +8,7 @@ class Queen < Piece
   include Sliding
 
   def symbol
-    '♛'.color(color)
+    color == :white ? '♕' : '♛'
   end
 
   private

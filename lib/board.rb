@@ -51,6 +51,7 @@ class Board
     self[start_pos] = NullPiece.new
     piece.update(end_pos, board.grid)
     @last_move = end_pos
+    nil
   end
 
   def valid_pos?(pos)
@@ -95,11 +96,6 @@ class Board
   end
 
   # temp render method
-  def to_s
-    render = grid.map { |row| row.map(&:to_s) }
-    render.each.with_index { |row, row_num| puts "#{row_num} #{row.join}" }
-    puts '   0  1  2  3  4  5  6  7 '
-  end
 end
 
 # b = Board.new
