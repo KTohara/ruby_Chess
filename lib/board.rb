@@ -31,14 +31,21 @@ class Board
   end
 
   # test
-  def valid_move?(_color, start_pos, _end_pos)
+  def move_piece(start_pos, end_pos)
+    move_piece!(start_pos, end_pos) if valid_move?(start_pos, end_pos)
+  end
+
+  # test
+  def valid_move?(start_pos, _end_pos)
     raise 'Square is empty' if empty?(start_pos)
 
     piece = self[start_pos]
     if piece.enemy?
       raise 'You must move your own pieces'
-      # elsif !piece.valid_moves.include?(end_pos)
-      #   raise 'Invalid move for this piece'
+      return false
+    elsif !piece.valid_moves.include?(end_pos)
+      raise 'Invalid move for this piece'
+      return false
     end
 
     true
@@ -49,7 +56,7 @@ class Board
     piece = self[start_pos]
     self[end_pos] = piece
     self[start_pos] = NullPiece.new
-    piece.update(end_pos, board.grid)
+    piece.update(end_pos, grid)
     @last_move = end_pos
     nil
   end
@@ -62,7 +69,9 @@ class Board
     self[pos].empty?
   end
 
-  def checkmate?; end
+  def checkmate?(player)
+  
+  end
 
   def check?; end
 
@@ -94,8 +103,6 @@ class Board
       self[pos] = Pawn.new(color, pos)
     end
   end
-
-  # temp render method
 end
 
 # b = Board.new

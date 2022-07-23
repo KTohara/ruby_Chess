@@ -3,16 +3,18 @@
 require_relative 'cursor'
 require_relative 'colors'
 
+# Board render logic
 class Display
   include Colors
 
   COLUMN_LETTERS = ('a'..'h').to_a.freeze
 
-  attr_reader :board, :cursor
+  attr_reader :board, :cursor, :notifications
 
   def initialize(board)
     @board = board
     @cursor = Cursor.new([7, 0], board)
+    @notifications = {}
   end
 
   def to_s
@@ -35,10 +37,12 @@ class Display
     end
   end
 
+  # colors the piece's foreground and background
   def color_piece(foreground, background, string)
     "\e[#{foreground};48;5;#{background}m#{string}\e[0m"
   end
 
+  # colors a string into light_blue
   def color_string(string)
     "\e[1;34m#{string}\e[0m"
   end
@@ -47,8 +51,11 @@ class Display
     COLORS[piece.color]
   end
 
+  # changes the background color depending on the circumstance
   def back_color(pos_x, pos_y)
-    if cursor.cursor_pos == [pos_x, pos_y]
+    if cursor.cursor_pos == [pos_x, pos_y] && cursor.selected
+      BG_COLORS[:light_orange]
+    elsif cursor.cursor_pos == [pos_x, pos_y]
       BG_COLORS[:light_blue]
     elsif (pos_x + pos_y).odd?
       BG_COLORS[:black]

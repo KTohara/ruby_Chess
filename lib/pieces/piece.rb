@@ -26,7 +26,7 @@ class Piece
   end
 
   def update(pos, grid)
-    update_enpassant(grid) if instance_of?(Pawn)
+    update_en_passant(grid) if instance_of?(Pawn)
     update_moved
     update_position(pos)
   end

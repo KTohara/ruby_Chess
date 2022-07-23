@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'byebug'
 require 'io/console'
 
 KEYMAP = {
@@ -34,11 +35,12 @@ MOVES = {
 
 # STDIN cursor logic
 class Cursor
-  attr_reader :cursor_pos, :board
+  attr_reader :cursor_pos, :board, :selected
 
   def initialize(cursor_pos, board)
     @cursor_pos = cursor_pos
     @board = board
+    @selected = false
   end
 
   def key_input
@@ -83,7 +85,28 @@ class Cursor
     input
   end
 
-  def handle_key(key); end
+  def handle_key(key)
+    case key
+    when :return, :space
+      toggle_position
+      cursor_pos
+    when :ctrl_c
+      exit 0
+    when :up, :down, :left, :right
+      diff = MOVES[key]
+      update_pos(diff)
+      nil
+    end
+  end
 
-  def update_pos(diff); end
+  def update_pos(diff)
+    row, col = cursor_pos
+    dx, dy = diff
+    new_pos = [row + dx, col + dy]
+    @cursor_pos = new_pos if board.valid_pos?(new_pos)
+  end
+
+  def toggle_position
+    @selected = !selected
+  end
 end

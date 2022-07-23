@@ -16,7 +16,8 @@ module Colors
       white: '231',
       red: '160',
       green: '49',
-      light_blue: '110'
+      light_blue: '110',
+      light_orange: '172'
     }.freeze
 
   def color(_color)
