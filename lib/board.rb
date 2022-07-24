@@ -26,29 +26,22 @@ class Board
     @grid[row][col] = piece
   end
 
-  def move_piece(color, start_pos, end_pos)
-    move_piece!(start_pos, end_pos) if valid_move?(color, start_pos, end_pos)
-  end
-
   # test
-  def move_piece(start_pos, end_pos)
-    move_piece!(start_pos, end_pos) if valid_move?(start_pos, end_pos)
-  end
-
-  # test
-  def valid_move?(start_pos, _end_pos)
-    raise 'Square is empty' if empty?(start_pos)
-
+  def validate_start_pos(turn_color, start_pos)
     piece = self[start_pos]
-    if piece.enemy?
-      raise 'You must move your own pieces'
-      return false
-    elsif !piece.valid_moves.include?(end_pos)
-      raise 'Invalid move for this piece'
-      return false
-    end
+    raise 'Square is empty' if empty?(start_pos)
+    raise 'You must move your own pieces' if piece.color != turn_color
 
-    true
+    nil
+  end
+
+  # test
+  def validate_end_pos(start_pos, end_pos)
+    start_piece = self[start_pos]
+    moves = start_piece.valid_moves(self)
+    raise 'Invalid move for this piece' unless moves.include?(end_pos)
+
+    nil
   end
 
   # test
@@ -69,9 +62,7 @@ class Board
     self[pos].empty?
   end
 
-  def checkmate?(player)
-  
-  end
+  def checkmate?(player); end
 
   def check?; end
 

@@ -3,32 +3,34 @@
 require_relative 'board'
 require_relative 'player'
 require_relative 'display'
-
+require 'byebug'
 # game flow
 class Game
-  attr_reader :board, :player, :current_player, :display
+  attr_reader :board, :players, :current_player, :display
 
   def initialize
     @board = Board.new
-    @display = Display.new(@board)
+    @display = Display.new(board)
     @players = {
-      white: Player.new(:white, @display),
-      black: Player.new(:black, @display)
+      white: Player.new(:white, display),
+      black: Player.new(:black, display)
     }
-    @current_player = @players[:white]
+    @current_player = players[:white]
   end
 
   def play
     until board.checkmate?(current_player)
       begin
-        row, col = current_player.prompt_move
-        board.move_piece!(row, col)
+        start_pos = prompt_start_pos(current_player)
+        board.validate_start_pos(current_player.color, start_pos)
+        end_pos = prompt_end_pos(current_player, start_pos)
+        board.validate_end_pos(start_pos, end_pos)
+        board.move_piece!(start_pos, end_pos)
         switch_player
-        display_notifications
-      # rescue StandardError => e
-        # debugger
-        # @display.notifications[:error] = e.message
-        # retry
+      rescue StandardError => e
+        display.notifications[:error] = e.message
+        display.cursor.toggle_selected
+        retry
       end
     end
 
@@ -37,13 +39,32 @@ class Game
     # nil
   end
 
-  def switch_player; end
-  def display_notifications;end
+  def switch_player
+    @current_player = current_player == players[:white] ? players[:black] : players[:white]
+  end
+
+  def prompt_start_pos(player, start_pos = nil)
+    until start_pos
+      display.render
+      puts "#{player.color.to_s.capitalize}, choose a piece"
+      start_pos = display.cursor.key_input
+    end
+    start_pos
+  end
+
+  def prompt_end_pos(player, start_pos, end_pos = nil)
+    until end_pos
+      display.render # needs with valid_moves
+      piece = board[start_pos]
+      p piece.valid_moves(board)
+      puts "#{player.color.to_s.capitalize}, move the piece"
+      end_pos = display.cursor.key_input
+    end
+    end_pos
+  end
 end
 
-if $PROGRAM_NAME == __FILE__
-  g = Game.new.play
-end
+g = Game.new.play if $PROGRAM_NAME == __FILE__
 
 # TO DO:
 # king castling
@@ -52,7 +73,7 @@ end
 # finish Board.valid_moves
 # notifications/error display
 # input loops
-# cursor
+# cursor - handle saves
 
 # TEST:
 # Board.move_piece!

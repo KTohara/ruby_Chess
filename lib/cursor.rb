@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'byebug'
 require 'io/console'
 
 KEYMAP = {
@@ -11,7 +10,7 @@ KEYMAP = {
   'l' => :right,
   'w' => :up,
   'a' => :left,
-  's' => :down,
+  's' => :save,
   'd' => :right,
   "\t" => :tab,
   "\r" => :return,
@@ -23,7 +22,8 @@ KEYMAP = {
   "\e[D" => :left,
   "\177" => :backspace,
   "\004" => :delete,
-  "\u0003" => :ctrl_c
+  "\u0003" => :ctrl_c,
+  "\u0013" => :ctrl_s
 }.freeze
 
 MOVES = {
@@ -46,6 +46,10 @@ class Cursor
   def key_input
     key = KEYMAP[read_char]
     handle_key(key)
+  end
+
+  def toggle_selected
+    @selected = !selected
   end
 
   private
@@ -88,10 +92,12 @@ class Cursor
   def handle_key(key)
     case key
     when :return, :space
-      toggle_position
+      toggle_selected
       cursor_pos
     when :ctrl_c
       exit 0
+    when :save
+      save
     when :up, :down, :left, :right
       diff = MOVES[key]
       update_pos(diff)
@@ -106,7 +112,7 @@ class Cursor
     @cursor_pos = new_pos if board.valid_pos?(new_pos)
   end
 
-  def toggle_position
-    @selected = !selected
+  def save
+    raise 'saving'
   end
 end

@@ -17,19 +17,25 @@ class Display
     @notifications = {}
   end
 
+  def render
+    system('clear')
+    puts self
+    notifications.each { |error| display_error(error) }
+  end
+
   def to_s
-    rows = board_render.join("\n")
+    rows = map_board_rows.join("\n")
     "#{rows}\n   #{color_string(COLUMN_LETTERS.join('  '))} "
   end
 
-  def board_render
+  def map_board_rows
     board.grid.map.with_index do |row, index|
       row_num = 8 - index
-      "#{color_string(row_num)} #{board_row(row, index).join}"
+      "#{color_string(row_num)} #{map_board_pieces(row, index).join}"
     end
   end
 
-  def board_row(row, pos_x)
+  def map_board_pieces(row, pos_x)
     row.map.with_index do |piece, pos_y|
       foreground = fore_color(piece)
       background = back_color(pos_x, pos_y)
@@ -62,5 +68,9 @@ class Display
     else
       BG_COLORS[:white]
     end
+  end
+
+  def display_error(_error)
+    puts notifications[:error]
   end
 end

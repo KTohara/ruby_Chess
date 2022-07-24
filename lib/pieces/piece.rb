@@ -31,8 +31,6 @@ class Piece
     update_position(pos)
   end
 
-  private
-
   def valid_location?(pos)
     pos.all? { |coord| coord.between?(0, 7) }
   end
@@ -55,6 +53,8 @@ class Piece
   def symbol
     # subclass placeholder method for unicode chars
   end
+
+  private
 
   def update_moved
     @moved = true
