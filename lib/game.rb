@@ -27,10 +27,10 @@ class Game
         board.validate_end_pos(start_pos, end_pos)
         board.move_piece!(start_pos, end_pos)
         switch_player
-      rescue StandardError => e
-        display.notifications[:error] = e.message
-        display.cursor.selected = false
-        retry
+        # rescue StandardError => e
+        #   display.notifications[:error] = e.message
+        #   display.cursor.selected = false
+        #   retry
       end
     end
 

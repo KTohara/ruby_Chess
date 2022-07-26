@@ -19,26 +19,26 @@ class Pawn < Piece
 
   def valid_moves(grid, last_move)
     reset_moves
-    single_jump(grid, moves[:moves])
-    double_jump(grid, moves[:moves])
-    captures(grid, moves[:captures])
-    en_passant_capture(grid, last_move, moves[:en_passant])
+    single_jump(grid)
+    double_jump(grid)
+    captures(grid)
+    en_passant_capture(grid, last_move)
     moves.values.flatten(1)
   end
 
-  def single_jump(grid, moves)
+  def single_jump(grid)
     move = [row + pawn_direction, col]
     piece = grid[row + pawn_direction][col]
-    moves << move if valid_location?(move) && empty_location?(piece)
+    moves[:moves] << move if valid_location?(move) && empty_location?(piece)
   end
 
-  def double_jump(grid, moves)
+  def double_jump(grid)
     return if jump_blocked?(grid)
 
     double_jump_row = row + (pawn_direction * 2)
     move = [double_jump_row, col]
     piece_two_ahead = grid[double_jump_row][col]
-    moves << move if empty_location?(piece_two_ahead)
+    moves[:moves] << move if empty_location?(piece_two_ahead)
   end
 
   def jump_blocked?(grid)
@@ -46,17 +46,17 @@ class Pawn < Piece
     moved || !empty_location?(piece_one_ahead)
   end
 
-  def captures(grid, moves)
+  def captures(grid)
     [-1, 1].each do |capture_direction|
       cx = row + pawn_direction
       cy = col + capture_direction
       capture_pos = [cx, cy]
       piece = grid[cx][cy]
-      moves << capture_pos if valid_location?(capture_pos) && enemy?(piece)
+      moves[:captures] << capture_pos if valid_location?(capture_pos) && enemy?(piece)
     end
   end
 
-  def en_passant_capture(grid, last_move, moves)
+  def en_passant_capture(grid, last_move)
     return unless [3, 4].include?(row)
 
     en_passant_dir.each do |dx, dy|
@@ -64,7 +64,9 @@ class Pawn < Piece
       dy += col
       enemy_pos = [dx, dy]
       end_pos = [dx + pawn_direction, dy]
-      moves << end_pos if valid_location?(enemy_pos) && valid_en_passant?(grid, enemy_pos, end_pos, last_move)
+      next unless valid_location?(enemy_pos) && valid_en_passant?(grid, enemy_pos, end_pos, last_move)
+
+      moves[:en_passant] << end_pos
     end
   end
 

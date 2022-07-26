@@ -6,10 +6,11 @@ require 'pieces/nullpiece'
 require 'board'
 
 describe King do
-  let(:board) { instance_double(Board) }
+  let(:board) { instance_double(Board, last_move: nil) }
   let(:bpc) { instance_double(Piece, color: :black, empty?: false) }
   let(:wpc) { instance_double(Piece, color: :white, empty?: false) }
   let(:emp) { instance_double(NullPiece, color: :none, empty?: true) }
+  let(:last_move) { board.last_move }
 
   describe '#valid_moves' do
     context 'when the king has no moves' do
@@ -28,8 +29,8 @@ describe King do
       end
 
       it 'returns an empty array' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = bki.valid_moves(board)
+        bki.valid_moves(grid, last_move)
+        valid_moves = bki.moves[:moves]
         expect(valid_moves).to be_empty
       end
     end
@@ -50,8 +51,8 @@ describe King do
       end
 
       it 'should return all 8 moves' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = bki.valid_moves(board)
+        bki.valid_moves(grid, last_move)
+        valid_moves = bki.moves[:moves]
         expect(valid_moves).to contain_exactly([0, 3], [0, 4], [0, 5], [1, 3], [1, 5], [2, 3], [2, 4], [2, 5])
       end
     end
@@ -71,10 +72,16 @@ describe King do
         ]
       end
 
-      it 'returns 4 moves' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = bki.valid_moves(board)
-        expect(valid_moves).to contain_exactly([0, 3], [0, 4], [1, 5], [2, 4])
+      it 'returns 1 move' do
+        bki.valid_moves(grid, last_move)
+        valid_moves = bki.moves[:moves]
+        expect(valid_moves).to contain_exactly([0, 4])
+      end
+
+      it 'returns 3 captures' do
+        bki.valid_moves(grid, last_move)
+        valid_captures = bki.moves[:captures]
+        expect(valid_captures).to contain_exactly([0, 3], [1, 5], [2, 4])
       end
     end
 

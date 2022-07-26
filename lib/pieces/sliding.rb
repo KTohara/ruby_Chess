@@ -8,10 +8,10 @@ module Sliding
   def valid_moves(grid, _last_move)
     reset_moves
 
-    move_set.each do |set_pos|
-      sx, sy = set_pos
-      new_pos = [row + sx, col + sy]
-      check_move_dir(new_pos, set_pos, grid)
+    move_set.each do |dir_pos|
+      dx, dy = dir_pos
+      new_pos = [row + dx, col + dy]
+      populate_sliding_moves(new_pos, dir_pos, grid)
     end
     moves.values.flatten(1).compact.reject(&:empty?)
   end
@@ -26,17 +26,17 @@ module Sliding
     DIAGONAL_DIRS
   end
 
-  def check_move_dir(new_pos, set_pos, grid)
+  def populate_sliding_moves(new_pos, dir_pos, grid)
     nx, ny = new_pos
-    sx, sy = set_pos
+    dx, dy = dir_pos
     while valid_location?([nx, ny])
       coord = grid[nx][ny]
       moves[:moves] << [nx, ny] if empty_location?(coord)
       moves[:captures] << [nx, ny] if enemy?(coord)
       break if ally?(coord) || enemy?(coord)
 
-      nx += sx
-      ny += sy
+      nx += dx
+      ny += dy
     end
   end
 end

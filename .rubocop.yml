@@ -5,36 +5,36 @@ AllCops:
 Metrics/BlockLength:
   Exclude:
     - "spec/*"
-    - "spec/pieces_spec/*"
+    - "spec/pieces/*"
 Layout/LineLength:
   Exclude:
     - "spec/*"
-    - "spec/pieces_spec/*"
+    - "spec/pieces/*"
 Style/WordArray:
   Exclude:
     - "spec/*"
-    - "spec/pieces_spec/*"
+    - "spec/pieces/*"
 Style/BlockDelimiters:
   Exclude:
     - "spec/*"
-    - "spec/pieces_spec/*"
+    - "spec/pieces/*"
 Layout/MultilineBlockLayout:
   Exclude:
     - "spec/*"
-    - "spec/pieces_spec/*"
+    - "spec/pieces/*"
 Layout/BlockAlignment:
   Exclude:
     - "spec/*"
-    - "spec/pieces_spec/*"
+    - "spec/pieces/*"
 Layout/BlockEndNewline:
   Exclude:
     - "spec/*"
-    - "spec/pieces_spec/*"
+    - "spec/pieces/*"
 Metrics/AbcSize:
   Exclude:
     - "lib/*"
-    - "spec/pieces_spec/*"
+    - "spec/pieces/*"
 Metrics/MethodLength:
   Exclude:
     - "lib/*"
-    - "spec/pieces_spec/*"
+    - "spec/pieces/*"

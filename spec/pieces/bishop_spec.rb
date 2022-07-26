@@ -5,10 +5,11 @@ require 'pieces/piece'
 require 'board'
 
 describe Bishop do
-  let(:board) { instance_double(Board) }
+  let(:board) { instance_double(Board, last_move: nil) }
   let(:bpc) { instance_double(Piece, color: :black, empty?: false) }
   let(:wpc) { instance_double(Piece, color: :white, empty?: false) }
   let(:emp) { instance_double(NullPiece, color: :none, empty?: true) }
+  let(:last_move) { board.last_move }
 
   describe '#valid_moves' do
     context 'when the rook has no moves' do
@@ -27,8 +28,8 @@ describe Bishop do
       end
 
       it 'returns an empty array' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = wbi.valid_moves(board)
+        wbi.valid_moves(grid, last_move)
+        valid_moves = wbi.moves[:moves]
         expect(valid_moves).to be_empty
       end
     end
@@ -49,8 +50,8 @@ describe Bishop do
       end
 
       it 'should return 5 moves' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = bbi.valid_moves(board)
+        bbi.valid_moves(grid, last_move)
+        valid_moves = bbi.moves[:moves]
         expect(valid_moves).to contain_exactly([1, 6], [3, 6], [4, 5], [5, 4], [6, 3])
       end
     end
@@ -70,10 +71,16 @@ describe Bishop do
         ]
       end
 
-      it 'returns 5 moves' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = bbi.valid_moves(board)
-        expect(valid_moves).to contain_exactly([0, 2], [1, 3], [3, 3], [4, 2], [5, 1])
+      it 'returns 3 moves' do
+        bbi.valid_moves(grid, last_move)
+        valid_moves = bbi.moves[:moves]
+        expect(valid_moves).to contain_exactly([1, 3], [3, 3], [4, 2])
+      end
+
+      it 'returns 2 captures' do
+        bbi.valid_moves(grid, last_move)
+        valid_captures = bbi.moves[:captures]
+        expect(valid_captures).to contain_exactly([0, 2], [5, 1])
       end
     end
   end

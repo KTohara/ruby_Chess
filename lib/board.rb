@@ -48,9 +48,7 @@ class Board
   def move_piece!(start_pos, end_pos)
     piece = self[start_pos]
     self[end_pos] = piece
-    if piece.moves[:en_passant].include?(end_pos)
-      self[piece.en_passant_enemy_pos(end_pos)] = NullPiece.new
-    end
+    self[piece.en_passant_enemy_pos(end_pos)] = NullPiece.new if piece.moves[:en_passant].include?(end_pos)
     self[start_pos] = NullPiece.new
     piece.update(end_pos, grid)
     @last_move = end_pos

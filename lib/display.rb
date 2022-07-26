@@ -71,7 +71,7 @@ class Display
   end
 
   def display_notification
-    notifications.values.each { |error| puts error }
+    notifications.each_value { |error| puts error }
   end
 
   def reset_errors

@@ -68,4 +68,12 @@ class Piece
   def reset_moves
     @moves = Hash.new { |h, k| h[k] = [] }
   end
+
+  def add_moves(new_pos, piece)
+    if empty_location?(piece)
+      moves[:moves] << new_pos
+    elsif enemy?(piece)
+      moves[:captures] << new_pos
+    end
+  end
 end

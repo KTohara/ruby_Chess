@@ -5,10 +5,11 @@ require 'pieces/piece'
 require 'board'
 
 describe Pawn do
-  let(:board) { instance_double(Board) }
+  let(:board) { instance_double(Board, last_move: nil) }
   let(:bpc) { instance_double(Piece, 'Black', color: :black, empty?: false) }
   let(:wpc) { instance_double(Piece, 'White', color: :white, empty?: false) }
   let(:emp) { instance_double(NullPiece, 'Empty', color: :none, empty?: true) }
+  let(:last_move) { board.last_move }
 
   describe '#valid_moves' do
     context 'when the pawn has no moves' do
@@ -26,11 +27,10 @@ describe Pawn do
         ]
       end
 
-      it 'returns an empty array' do
-        allow(board).to receive(:grid).and_return(grid)
-        allow(board).to receive(:last_move)
-        valid_moves = bpa.valid_moves(board)
-        expect(valid_moves).to be_empty
+      it 'returns empty' do
+        bpa.valid_moves(grid, last_move)
+        moves = bpa.moves
+        expect(moves).to be_empty
       end
     end
 
@@ -50,14 +50,14 @@ describe Pawn do
         ]
       end
 
-      it 'will return a move regardless of color' do
-        allow(board).to receive(:grid).and_return(grid)
-        allow(board).to receive(:last_move)
-        bpawn_valid_moves = bpa.valid_moves(board)
-        expect(bpawn_valid_moves).to contain_exactly([2, 7])
+      it 'returns a position regardless of color' do
+        bpa.valid_moves(grid, last_move)
+        bl_moves = bpa.moves[:moves]
+        expect(bl_moves).to contain_exactly([2, 7])
 
-        wpawn_valid_moves = wpa.valid_moves(board)
-        expect(wpawn_valid_moves).to contain_exactly([5, 0])
+        wpa.valid_moves(grid, last_move)
+        wh_moves = wpa.moves[:moves]
+        expect(wh_moves).to contain_exactly([5, 0])
       end
     end
   end
@@ -78,10 +78,10 @@ describe Pawn do
         ]
       end
 
-      it 'returns one move' do
-        allow(board).to receive(:grid).and_return(grid)
-        single_jump = bpa.single_jump(board.grid)
-        expect(single_jump).to eq([2, 0])
+      it 'returns one position' do
+        bpa.single_jump(grid)
+        moves = bpa.moves[:moves]
+        expect(moves).to contain_exactly([2, 0])
       end
     end
 
@@ -100,10 +100,10 @@ describe Pawn do
         ]
       end
 
-      it 'returns nil' do
-        allow(board).to receive(:grid).and_return(grid)
-        single_jump = bpa.single_jump(board.grid)
-        expect(single_jump).to be_nil
+      it 'returns an empty' do
+        bpa.single_jump(grid)
+        moves = bpa.moves[:moves]
+        expect(moves).to be_empty
       end
     end
   end
@@ -125,9 +125,9 @@ describe Pawn do
       end
 
       it 'returns one move' do
-        allow(board).to receive(:grid).and_return(grid)
-        double_jump = bpa.double_jump(board.grid)
-        expect(double_jump).to eq([3, 4])
+        bpa.double_jump(grid)
+        moves = bpa.moves[:moves]
+        expect(moves).to contain_exactly([3, 4])
       end
     end
 
@@ -146,11 +146,11 @@ describe Pawn do
         ]
       end
 
-      it 'returns nil' do
-        allow(board).to receive(:grid).and_return(grid)
-        allow(bpa).to receive(:moved).and_return(true)
-        double_jump = bpa.double_jump(board.grid)
-        expect(double_jump).to be_nil
+      it 'returns empty' do
+        bpa.instance_variable_set(:@moved, true)
+        bpa.double_jump(grid)
+        moves = bpa.moves[:moves]
+        expect(moves).to be_empty
       end
     end
   end
@@ -172,8 +172,8 @@ describe Pawn do
       end
 
       it 'will only return direct diagonal moves' do
-        allow(board).to receive(:grid).and_return(grid)
-        captures = wpa.captures(board.grid)
+        wpa.captures(grid)
+        captures = wpa.moves[:captures]
         expect(captures).to contain_exactly([5, 1], [5, 3])
       end
     end
@@ -195,17 +195,18 @@ describe Pawn do
       end
 
       it 'returns an empty array' do
-        allow(board).to receive(:grid).and_return(grid)
-        wh_captures = wpa.captures(board.grid)
+        wpa.captures(grid)
+        wh_captures = wpa.moves[:captures]
         expect(wh_captures).to be_empty
 
-        bl_captures = bpa.captures(board.grid)
+        bpa.captures(grid)
+        bl_captures = bpa.moves[:captures]
         expect(bl_captures).to be_empty
       end
     end
   end
 
-  describe '#en_passant' do
+  describe '#en_passant_capture' do
     context 'when the pawn can perform en passant' do
       subject(:wpa) { described_class.new(:white, [3, 2]) }
       let(:bpa) { instance_double(Pawn, 'BP', color: :black) }
@@ -224,12 +225,12 @@ describe Pawn do
       end
 
       it 'returns one move' do
-        allow(board).to receive(:grid).and_return(grid)
         allow(board).to receive(:last_move).and_return([3, 1])
         allow(bpa).to receive(:instance_of?).with(Pawn).and_return(true)
         allow(wpa).to receive(:en_passant).and_return(true)
-        en_passant_capture = wpa.en_passant_capture(board.grid, last_move)
-        expect(en_passant_capture).to contain_exactly([2, 1])
+        wpa.en_passant_capture(grid, last_move)
+        en_passant = wpa.moves[:en_passant]
+        expect(en_passant).to contain_exactly([2, 1])
       end
     end
 
@@ -251,11 +252,11 @@ describe Pawn do
       end
 
       it 'returns an empty array' do
-        allow(board).to receive(:grid).and_return(grid)
         allow(bpa).to receive(:instance_of?).with(Pawn).and_return(true)
         allow(wpa).to receive(:en_passant).and_return(true)
-        en_passant_capture = wpa.en_passant_capture(board.grid, last_move)
-        expect(en_passant_capture).to be_empty
+        wpa.en_passant_capture(grid, last_move)
+        en_passant = wpa.moves[:en_passant]
+        expect(en_passant).to be_empty
       end
     end
 
@@ -277,11 +278,11 @@ describe Pawn do
       end
 
       it 'returns an empty array' do
-        allow(board).to receive(:grid).and_return(grid)
         allow(bpa).to receive(:instance_of?).with(Pawn).and_return(true)
         allow(wpa).to receive(:en_passant).and_return(false)
-        en_passant_capture = wpa.en_passant_capture(board.grid, last_move)
-        expect(en_passant_capture).to be_empty
+        wpa.en_passant_capture(grid, last_move)
+        en_passant = wpa.moves[:en_passant]
+        expect(en_passant).to be_empty
       end
     end
 
@@ -304,12 +305,12 @@ describe Pawn do
       end
 
       it 'returns only one en passant move' do
-        allow(board).to receive(:grid).and_return(grid)
         allow(bp1).to receive(:instance_of?).with(Pawn).and_return(true)
         allow(bp2).to receive(:instance_of?).with(Pawn).and_return(true)
         allow(wpa).to receive(:en_passant).and_return(true)
-        en_passant_capture = wpa.en_passant_capture(board.grid, last_move)
-        expect(en_passant_capture).to contain_exactly([2, 1])
+        wpa.en_passant_capture(grid, last_move)
+        en_passant = wpa.moves[:en_passant]
+        expect(en_passant).to contain_exactly([2, 1])
       end
     end
   end

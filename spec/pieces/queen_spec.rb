@@ -5,10 +5,11 @@ require 'pieces/piece'
 require 'board'
 
 describe Queen do
-  let(:board) { instance_double(Board) }
+  let(:board) { instance_double(Board, last_move: nil) }
   let(:bpc) { instance_double(Piece, color: :black, empty?: false) }
   let(:wpc) { instance_double(Piece, color: :white, empty?: false) }
   let(:emp) { instance_double(NullPiece, color: :none, empty?: true) }
+  let(:last_move) { board.last_move }
 
   describe '#valid_moves' do
     context 'when the queen has no moves' do
@@ -27,9 +28,9 @@ describe Queen do
       end
 
       it 'returns an empty array' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = wqn.valid_moves(board)
-        expect(valid_moves).to be_empty
+        wqn.valid_moves(grid, last_move)
+        moves = wqn.moves[:moves]
+        expect(moves).to be_empty
       end
     end
 
@@ -49,9 +50,9 @@ describe Queen do
       end
 
       it 'should return 6 moves' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = wqn.valid_moves(board)
-        expect(valid_moves).to contain_exactly([1, 3], [2, 5], [2, 6], [3, 3], [4, 2], [5, 1])
+        wqn.valid_moves(grid, last_move)
+        moves = wqn.moves[:moves]
+        expect(moves).to contain_exactly([1, 3], [2, 5], [2, 6], [3, 3], [4, 2], [5, 1])
       end
     end
 
@@ -70,10 +71,16 @@ describe Queen do
         ]
       end
 
-      it 'returns an array with 7 moves' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = wqn.valid_moves(board)
-        expect(valid_moves).to contain_exactly([0, 2], [1, 3], [2, 5], [3, 4], [4, 4], [5, 4], [3, 5])
+      it 'returns 4 moves' do
+        wqn.valid_moves(grid, last_move)
+        moves = wqn.moves[:moves]
+        expect(moves).to contain_exactly([1, 3], [2, 5], [3, 4], [4, 4])
+      end
+
+      it 'returns 3 captures' do
+        wqn.valid_moves(grid, last_move)
+        captures = wqn.moves[:captures]
+        expect(captures).to contain_exactly([0, 2], [5, 4], [3, 5])
       end
     end
   end

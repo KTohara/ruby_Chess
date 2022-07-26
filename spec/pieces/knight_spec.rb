@@ -6,10 +6,11 @@ require 'pieces/nullpiece'
 require 'board'
 
 describe Knight do
-  let(:board) { instance_double(Board) }
+  let(:board) { instance_double(Board, last_move: nil) }
   let(:bpc) { instance_double(Piece, color: :black, empty?: false) }
   let(:wpc) { instance_double(Piece, color: :white, empty?: false) }
   let(:emp) { instance_double(NullPiece, color: :none, empty?: true) }
+  let(:last_move) { board.last_move }
 
   describe '#valid_moves' do
     context 'when the knight has no moves' do
@@ -28,9 +29,9 @@ describe Knight do
       end
 
       it 'returns an empty array' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = bkn.valid_moves(board)
-        expect(valid_moves).to be_empty
+        bkn.valid_moves(grid, last_move)
+        moves = bkn.moves[:moves]
+        expect(moves).to be_empty
       end
     end
 
@@ -50,9 +51,9 @@ describe Knight do
       end
 
       it 'should return all 8 moves' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = bkn.valid_moves(board)
-        expect(valid_moves).to contain_exactly([0, 3], [0, 5], [1, 2], [1, 6], [3, 2], [3, 6], [4, 3], [4, 5])
+        bkn.valid_moves(grid, last_move)
+        moves = bkn.moves[:moves]
+        expect(moves).to contain_exactly([0, 3], [0, 5], [1, 2], [1, 6], [3, 2], [3, 6], [4, 3], [4, 5])
       end
     end
 
@@ -71,10 +72,16 @@ describe Knight do
         ]
       end
 
-      it 'returns 4 moves' do
-        allow(board).to receive(:grid).and_return(grid)
-        valid_moves = bkn.valid_moves(board)
-        expect(valid_moves).to contain_exactly([0, 3], [1, 2], [3, 2], [4, 3])
+      it 'returns 1 move' do
+        bkn.valid_moves(grid, last_move)
+        moves = bkn.moves[:moves]
+        expect(moves).to contain_exactly([0, 3])
+      end
+
+      it 'returns 3 captures' do
+        bkn.valid_moves(grid, last_move)
+        captures = bkn.moves[:captures]
+        expect(captures).to contain_exactly([1, 2], [3, 2], [4, 3])
       end
     end
   end
