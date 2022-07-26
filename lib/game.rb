@@ -29,14 +29,13 @@ class Game
         switch_player
       rescue StandardError => e
         display.notifications[:error] = e.message
-        display.cursor.toggle_selected
+        display.cursor.selected = false
         retry
       end
     end
 
     # display.render
     # puts 'checkmate'
-    # nil
   end
 
   def switch_player
@@ -56,7 +55,7 @@ class Game
     until end_pos
       display.render # needs with valid_moves
       piece = board[start_pos]
-      p piece.valid_moves(board)
+      p piece.valid_moves(board.grid, board.last_move)
       puts "#{player.color.to_s.capitalize}, move the piece"
       end_pos = display.cursor.key_input
     end

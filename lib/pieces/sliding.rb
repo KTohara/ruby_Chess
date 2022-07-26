@@ -5,13 +5,15 @@ module Sliding
   HORIZONTAL_AND_VERTICAL_DIRS = [[-1, 0], [0, -1], [0, 1], [1, 0]].freeze
   DIAGONAL_DIRS = [[-1, -1], [-1, 1], [1, -1], [1, 1]].freeze
 
-  def valid_moves(board)
-    @moves = move_set.each_with_object([]) do |set_pos, possible_moves|
+  def valid_moves(grid, _last_move)
+    reset_moves
+
+    move_set.each do |set_pos|
       sx, sy = set_pos
       new_pos = [row + sx, col + sy]
-      directional_moves = check_move_dir(new_pos, set_pos, board.grid)
-      directional_moves.empty? ? next : possible_moves.concat(directional_moves)
+      check_move_dir(new_pos, set_pos, grid)
     end
+    moves.values.flatten(1).compact.reject(&:empty?)
   end
 
   private
@@ -24,17 +26,17 @@ module Sliding
     DIAGONAL_DIRS
   end
 
-  def check_move_dir(new_pos, set_pos, grid, moves = [])
+  def check_move_dir(new_pos, set_pos, grid)
     nx, ny = new_pos
     sx, sy = set_pos
-    while valid_location?(new_pos)
+    while valid_location?([nx, ny])
       coord = grid[nx][ny]
-      moves << [nx, ny] if enemy?(coord) || empty_location?(coord)
+      moves[:moves] << [nx, ny] if empty_location?(coord)
+      moves[:captures] << [nx, ny] if enemy?(coord)
       break if ally?(coord) || enemy?(coord)
 
       nx += sx
       ny += sy
     end
-    moves
   end
 end

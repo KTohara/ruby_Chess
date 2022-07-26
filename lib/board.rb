@@ -38,7 +38,7 @@ class Board
   # test
   def validate_end_pos(start_pos, end_pos)
     start_piece = self[start_pos]
-    moves = start_piece.valid_moves(self)
+    moves = start_piece.valid_moves(grid, last_move)
     raise 'Invalid move for this piece' unless moves.include?(end_pos)
 
     nil
@@ -48,6 +48,9 @@ class Board
   def move_piece!(start_pos, end_pos)
     piece = self[start_pos]
     self[end_pos] = piece
+    if piece.moves[:en_passant].include?(end_pos)
+      self[piece.en_passant_enemy_pos(end_pos)] = NullPiece.new
+    end
     self[start_pos] = NullPiece.new
     piece.update(end_pos, grid)
     @last_move = end_pos

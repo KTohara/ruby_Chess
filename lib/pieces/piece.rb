@@ -4,7 +4,7 @@ require_relative '../colors'
 
 # Chess piece superclass
 class Piece
-  attr_reader :color, :board, :moved, :row, :col
+  attr_reader :color, :board, :moved, :row, :col, :moves
   attr_accessor :pos
 
   def initialize(color, pos)
@@ -12,8 +12,7 @@ class Piece
     @pos = pos
     @row = pos.first
     @col = pos.last
-    @moves = []
-    @captures = []
+    @moves = Hash.new { |h, k| h[k] = [] }
     @moved = false
   end
 
@@ -25,10 +24,10 @@ class Piece
     false
   end
 
-  def update(pos, grid)
+  def update(end_pos, grid)
+    update_position(end_pos)
     update_en_passant(grid) if instance_of?(Pawn)
     update_moved
-    update_position(pos)
   end
 
   def valid_location?(pos)
@@ -64,5 +63,9 @@ class Piece
     @pos = pos
     @row = pos.first
     @col = pos.last
+  end
+
+  def reset_moves
+    @moves = Hash.new { |h, k| h[k] = [] }
   end
 end

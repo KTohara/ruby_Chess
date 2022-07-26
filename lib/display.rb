@@ -20,7 +20,7 @@ class Display
   def render
     system('clear')
     puts self
-    notifications.each { |error| display_error(error) }
+    display_notification
   end
 
   def to_s
@@ -70,7 +70,11 @@ class Display
     end
   end
 
-  def display_error(_error)
-    puts notifications[:error]
+  def display_notification
+    notifications.values.each { |error| puts error }
+  end
+
+  def reset_errors
+    notifications.delete(:error)
   end
 end

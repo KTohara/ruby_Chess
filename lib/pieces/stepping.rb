@@ -2,14 +2,18 @@
 
 # Move logic for king/knight
 module Stepping
-  def valid_moves(board)
-    @moves = move_set.each_with_object([]) do |(sx, sy), possible_moves|
+  def valid_moves(grid, _last_move)
+    reset_moves
+
+    move_set.each do |sx, sy|
       px = row + sx
       py = col + sy
       next unless valid_location?([px, py])
 
-      coord = board.grid[px][py]
-      possible_moves << [px, py] if empty_location?(coord) || enemy?(coord)
+      coord = grid[px][py]
+      moves[:moves] << [px, py] if empty_location?(coord)
+      moves[:captures] << [px, py] if enemy?(coord)
     end
+    moves.values.flatten(1).compact.reject(&:empty?)
   end
 end

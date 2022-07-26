@@ -35,7 +35,8 @@ MOVES = {
 
 # STDIN cursor logic
 class Cursor
-  attr_reader :cursor_pos, :board, :selected
+  attr_reader :cursor_pos, :board
+  attr_accessor :selected
 
   def initialize(cursor_pos, board)
     @cursor_pos = cursor_pos
@@ -109,7 +110,7 @@ class Cursor
     row, col = cursor_pos
     dx, dy = diff
     new_pos = [row + dx, col + dy]
-    @cursor_pos = new_pos if board.valid_pos?(new_pos)
+    @cursor_pos = new_pos if new_pos.all? { |axis| axis.between?(0, 7) }
   end
 
   def save
