@@ -134,32 +134,120 @@ describe Board do
     end
   end
 
-  describe '#move_piece' do
+  describe '#validate_start_pos' do
+    let(:turn_color) { :white }
     let(:black_pawn_a7) { [1, 0] }
-    let(:move_to_a6) { [2, 0] }
-    let(:empty_space_d4) { [4, 3] }
-    let(:empty_space_d5) { [3, 3] }
+    let(:white_pawn_a2) { [6, 0] }
+    let(:pos_d4) { [4, 3] }
 
-    context 'when an invalid move is given' do
-      it 'should raise an error if the start position is empty' do
-        expect { board.move_piece(:white, empty_space_d4, empty_space_d5) }.to raise_error('Square is empty')
-      end
-
-      it "should raise an error if the start position is the opponent's piece" do
-        expect { board.move_piece(:white, black_pawn_a7, move_to_a6) }.to raise_error('You must move your own pieces')
-      end
+    it 'should raise an error if the start position is empty' do
+      expect { board.validate_start_pos(turn_color, pos_d4) }.to raise_error('Square is empty')
     end
 
-    context 'when a valid move is given' do
-      it 'moves the piece from the start position to the end position' do
-        pawn = board[black_pawn_a7]
-        board.move_piece(:black, black_pawn_a7, move_to_a6)
-        expect(board[move_to_a6]).to eq(pawn)
+    it "should raise an error if the start position is the opponent's piece" do
+      expect { board.validate_start_pos(turn_color, black_pawn_a7) }.to raise_error('You must move your own pieces')
+    end
+
+    it 'returns nil if no errors are raised' do
+      expect(board.validate_start_pos(turn_color, white_pawn_a2)).to be_nil
+    end
+  end
+
+  describe '#validate_end_pos' do
+    let(:turn_color) { :white }
+    let(:black_pawn_a7) { [1, 0] }
+    let(:pos_d4) { [4, 3] }
+    let(:pos_a6) { [2, 0] }
+
+    it 'should raise an error if the end position is not a valid move' do
+      expect { board.validate_end_pos(black_pawn_a7, pos_d4) }.to raise_error('Invalid move for this piece')
+    end
+
+    it 'returns nil if no errors are raised' do
+      black_pawn = board[black_pawn_a7]
+      black_pawn.instance_variable_set(:@moves, { moves: [pos_a6] })
+      expect(board.validate_end_pos(black_pawn_a7, pos_a6)).to be_nil
+    end
+  end
+
+  describe '#move_piece' do
+    let(:black_pawn_a7) { [1, 0] }
+    let(:pos_a6) { [2, 0] }
+
+    it 'should move a piece from the start position to the end position' do
+      black_pawn = board[black_pawn_a7]
+      board.move_piece(black_pawn_a7, pos_a6)
+      expect(board[pos_a6]).to eq(black_pawn)
+    end
+
+    it 'creates a null piece at the start position' do
+      board.move_piece(black_pawn_a7, pos_a6)
+      expect(board[black_pawn_a7]).to be_a_kind_of(NullPiece)
+    end
+
+    it 'should call #update on Piece once' do
+      black_pawn = board[black_pawn_a7]
+      expect(black_pawn).to receive(:update).once
+      board.move_piece(black_pawn_a7, pos_a6)
+    end
+
+    it 'should set board.last_move to the end position' do
+      black_pawn = board[black_pawn_a7]
+      board.move_piece(black_pawn_a7, pos_a6)
+      expect(board.last_move).to eq(pos_a6)
+    end
+
+    context 'if the starting position piece (white pawn) has an en passant move as the ending move' do
+      let(:bpa) { Pawn.new(:black, [3, 1]) }
+      let(:wpa) { Pawn.new(:white, [3, 2]) }
+      let(:wh_pawn_pos) { wpa.pos }
+      let(:bl_pawn_pos) { bpa.pos }
+      let(:emp) { [2, 1] }
+      let(:grid) do
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, emp, nil, nil, nil, nil, nil, nil],
+          [nil, bpa, wpa, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil]
+        ]
       end
 
-      it 'creates a null piece at the start position' do
-        board.move_piece(:black, black_pawn_a7, move_to_a6)
-        expect(board[black_pawn_a7]).to be_a_kind_of(NullPiece)
+      it 'should replace the black pawn position with a null piece' do
+        board.instance_variable_set(:@grid, grid)
+        wpa.instance_variable_set(:@moves, { en_passant: [emp] })
+        board.move_piece(wh_pawn_pos, emp)
+        expect(board[bl_pawn_pos]).to be_a_kind_of(NullPiece)
+      end
+    end
+  end
+
+  describe '#valid_pos?' do
+    context 'when given an array with two indicies' do
+      it 'should return true if the pos indicies are between 0 and 7' do
+        expect(board.valid_pos?([5, 1])).to be true
+      end
+
+      it 'should return false if the pos indicies are not between 0 and 7' do
+        expect(board.valid_pos?([-1, -10])).to be false
+        expect(board.valid_pos?([8, 99])).to be false
+        expect(board.valid_pos?([1, 11])).to be false
+        expect(board.valid_pos?([11, 1])).to be false
+      end
+    end
+  end
+
+  describe '#empty?' do
+    context 'when given an array with two indicies' do
+      it 'should return true if the position is empty' do
+        expect(board.empty?([5, 5])).to be true
+      end
+
+      it 'should return false if the position is taken by a piece' do
+        expect(board.empty?([0, 0])).to be false
       end
     end
   end

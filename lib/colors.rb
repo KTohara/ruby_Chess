@@ -20,12 +20,12 @@ module Colors
       light_orange: '172'
     }.freeze
 
-  def color(_color)
-    {
-      black: "\e[30m#{self}\e[0m",
-      white: "\e[37m#{self}\e[0m",
-      light_red: "\e[1;31m#{self}\e[0m",
-      light_blue: "\e[1;34m#{self}\e[0m"
-    }
-  end
+  # def color(color)
+  #   {
+  #     black: "\e[30m#{self}\e[0m",
+  #     white: "\e[37m#{self}\e[0m",
+  #     light_red: "\e[1;31m#{self}\e[0m",
+  #     light_blue: "\e[1;34m#{self}\e[0m"
+  #   }[color]
+  # end
 end

@@ -11,35 +11,36 @@ class Display
 
   attr_reader :board, :cursor, :notifications
 
-  def initialize(board)
-    @board = board
-    @cursor = Cursor.new([7, 0], board)
+  def initialize
+    @cursor = Cursor.new([7, 0])
     @notifications = {}
   end
 
-  def render
+  def render(grid, selected = nil)
     system('clear')
-    puts self
+    puts display_board(grid, selected)
     display_notification
   end
 
-  def to_s
-    rows = map_board_rows.join("\n")
+  def display_board(grid, selected = nil)
+    rows = map_board_rows(grid, selected).join("\n")
     "#{rows}\n   #{color_string(COLUMN_LETTERS.join('  '))} "
   end
 
-  def map_board_rows
-    board.grid.map.with_index do |row, index|
+  def map_board_rows(grid, selected = nil)
+    grid.map.with_index do |row, index|
       row_num = 8 - index
-      "#{color_string(row_num)} #{map_board_pieces(row, index).join}"
+      "#{color_string(row_num)} #{map_board_pieces(row, index, selected).join}"
     end
   end
 
-  def map_board_pieces(row, pos_x)
+  def map_board_pieces(row, pos_x, selected = nil)
     row.map.with_index do |piece, pos_y|
-      foreground = fore_color(piece)
-      background = back_color(pos_x, pos_y)
-      color_piece(foreground, background, piece.to_s)
+      pos = [pos_x, pos_y]
+      foreground = fore_color(piece, pos, selected)
+      background = back_color(pos)
+      symbol = map_symbol(piece, pos, selected)
+      color_piece(foreground, background, symbol)
     end
   end
 
@@ -53,28 +54,45 @@ class Display
     "\e[1;34m#{string}\e[0m"
   end
 
-  def fore_color(piece)
-    COLORS[piece.color]
+  # changes the color of the piece depending on circumstance
+  def fore_color(piece, pos, selected = nil)
+    return COLORS[piece.color] unless cursor.selected
+
+    if selected.moves[:moves].include?(pos)
+      COLORS[:red]
+    elsif selected.moves[:captures].include?(pos) || selected.moves[:en_passant].include?(pos)
+      COLORS[:green]
+    else
+      COLORS[piece.color]
+    end
   end
 
-  # changes the background color depending on the circumstance
-  def back_color(pos_x, pos_y)
-    if cursor.cursor_pos == [pos_x, pos_y] && cursor.selected
+  # changes the background color depending on circumstance
+  def back_color(pos)
+    if cursor.cursor_pos == pos && cursor.selected
       BG_COLORS[:light_orange]
-    elsif cursor.cursor_pos == [pos_x, pos_y]
+    elsif cursor.cursor_pos == pos
       BG_COLORS[:light_blue]
-    elsif (pos_x + pos_y).odd?
+    elsif (pos[0] + pos[1]).odd?
       BG_COLORS[:black]
     else
       BG_COLORS[:white]
     end
   end
 
+  # changes the symbol into a circle if the position is a valid move
+  def map_symbol(piece, pos, selected = nil)
+    return piece.to_s unless cursor.selected
+
+    selected_moves = selected.list_all_moves
+    selected_moves.include?(pos) ? '░●░' : piece.to_s
+  end
+
   def display_notification
     notifications.each_value { |error| puts error }
   end
 
-  def reset_errors
+  def reset_notifications
     notifications.delete(:error)
   end
 end

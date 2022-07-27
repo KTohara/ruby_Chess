@@ -23,7 +23,7 @@ class Pawn < Piece
     double_jump(grid)
     captures(grid)
     en_passant_capture(grid, last_move)
-    moves.values.flatten(1)
+    # moves.values.flatten(1)
   end
 
   def single_jump(grid)

@@ -4,7 +4,7 @@ require_relative '../colors'
 
 # Chess piece superclass
 class Piece
-  attr_reader :color, :board, :moved, :row, :col, :moves
+  attr_reader :color, :row, :col, :moves, :moved
   attr_accessor :pos
 
   def initialize(color, pos)
@@ -50,7 +50,15 @@ class Piece
   end
 
   def symbol
-    # subclass placeholder method for unicode chars
+    # subclass attribute
+  end
+
+  def valid_moves
+    # subclass / module method
+  end
+
+  def list_all_moves
+    moves.values.flatten(1)
   end
 
   private

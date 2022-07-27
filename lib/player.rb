@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
+# Player class
 class Player
-  attr_reader :color, :display
+  attr_reader :color
 
-  def initialize(color, display)
+  def initialize(color)
     @color = color
-    @display = display
   end
 end

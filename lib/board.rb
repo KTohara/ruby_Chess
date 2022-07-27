@@ -26,7 +26,6 @@ class Board
     @grid[row][col] = piece
   end
 
-  # test
   def validate_start_pos(turn_color, start_pos)
     piece = self[start_pos]
     raise 'Square is empty' if empty?(start_pos)
@@ -35,17 +34,15 @@ class Board
     nil
   end
 
-  # test
   def validate_end_pos(start_pos, end_pos)
     start_piece = self[start_pos]
-    moves = start_piece.valid_moves(grid, last_move)
+    moves = start_piece.list_all_moves
     raise 'Invalid move for this piece' unless moves.include?(end_pos)
 
     nil
   end
 
-  # test
-  def move_piece!(start_pos, end_pos)
+  def move_piece(start_pos, end_pos)
     piece = self[start_pos]
     self[end_pos] = piece
     self[piece.en_passant_enemy_pos(end_pos)] = NullPiece.new if piece.moves[:en_passant].include?(end_pos)
