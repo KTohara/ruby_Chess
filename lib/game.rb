@@ -25,7 +25,7 @@ class Game
         start_pos = prompt_start_pos(current_player)
         board.validate_start_pos(current_player.color, start_pos)
         end_pos = prompt_end_pos(current_player, start_pos)
-        board.validate_end_pos(start_pos, end_pos)
+        board.validate_end_pos(start_pos, end_pos, current_player.color)
         board.move_piece(start_pos, end_pos)
         switch_player
       rescue StandardError => e
@@ -60,7 +60,7 @@ class Game
     until end_pos
       piece = board[start_pos]
       piece.valid_moves(board.grid, board.last_move)
-      display.render(board.grid, piece) # needs with valid_moves
+      display.render(board.grid, piece)
       puts "#{player.color.to_s.capitalize}, move the piece to a position"
       end_pos = display.cursor.key_input
     end
@@ -73,7 +73,7 @@ end
 Game.new.play if $PROGRAM_NAME == __FILE__
 
 # TO DO:
-# king castling
+# king castling - implement system for check/mate
 # pawn promotion
 # Board.check
 # Board.checkmate
@@ -81,3 +81,6 @@ Game.new.play if $PROGRAM_NAME == __FILE__
 # notifications/error display
 # input loops
 # cursor - handle saves
+
+# TEST:
+# king check/mate

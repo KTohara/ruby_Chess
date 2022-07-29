@@ -45,10 +45,6 @@ class Piece
     piece.color == color
   end
 
-  def empty_location?(piece)
-    piece.empty?
-  end
-
   def symbol
     # subclass attribute
   end
@@ -58,7 +54,8 @@ class Piece
   end
 
   def list_all_moves
-    moves.values.flatten(1)
+    moves.values.flatten(1).compact
+    # moves.values.flatten(1).compact.reject(&:empty?)
   end
 
   private
@@ -78,7 +75,7 @@ class Piece
   end
 
   def add_moves(new_pos, piece)
-    if empty_location?(piece)
+    if piece.empty?
       moves[:moves] << new_pos
     elsif enemy?(piece)
       moves[:captures] << new_pos

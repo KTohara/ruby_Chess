@@ -34,18 +34,19 @@ class Board
     nil
   end
 
-  def validate_end_pos(start_pos, end_pos)
+  def validate_end_pos(start_pos, end_pos, turn_color)
     start_piece = self[start_pos]
     moves = start_piece.list_all_moves
     raise 'Invalid move for this piece' unless moves.include?(end_pos)
-
+    raise 'Move puts king in check' if check?(turn_color, king)
     nil
   end
 
   def move_piece(start_pos, end_pos)
     piece = self[start_pos]
     self[end_pos] = piece
-    self[piece.en_passant_enemy_pos(end_pos)] = NullPiece.new if piece.moves[:en_passant].include?(end_pos)
+    en_passant_move(piece, end_pos) if piece.moves[:en_passant].include?(end_pos)
+    castling_move(end_pos) if piece.moves[:castling].include?(end_pos)
     self[start_pos] = NullPiece.new
     piece.update(end_pos, grid)
     @last_move = end_pos
@@ -60,9 +61,28 @@ class Board
     self[pos].empty?
   end
 
+  def en_passant_move(piece, end_pos)
+    self[piece.en_passant_enemy_pos(end_pos)] = NullPiece.new
+  end
+
+  def castling_move(end_pos)
+    row, col = end_pos
+    old_rook_pos, new_rook_pos = col == 6 ? king_castle(row) : queen_castle(row)
+    rook_piece = self[old_rook_pos]
+    self[new_rook_pos] = rook_piece
+    self[old_rook_pos] = NullPiece.new
+  end
+
   def checkmate?(player); end
 
-  def check?; end
+  def check?(turn_color, king = nil)
+    king ||= pieces.find { |p| p.instance_of?(King) && p.color == turn_color }
+    pieces.each { |piece| piece.valid_moves(grid, last_move) }
+    opponent_pieces = pieces.reject { |piece| piece.color == turn_color || piece.pos == king.pos }
+
+    opponent_pieces.any? { |piece| piece.list_all_moves.include?(king.pos) }
+    # fix king.pos - needs to be actual moved end position
+  end
 
   private
 
@@ -92,14 +112,24 @@ class Board
       self[pos] = Pawn.new(color, pos)
     end
   end
-end
 
-# b = Board.new
-# b.move_piece(:black, [0, 3], [5, 4])
-# # b.move_piece(:black, [0, 1], [5, 3])
-# queen = b[[5, 4]]
-# pawn = b[[1, 2]]
-# puts b
-# p queen.valid_moves(b)
-# p pawn.jumps(b)
-# puts b
+  def king_castle(row)
+    old_rook_col = 7
+    new_rook_col = 5
+    [[row, old_rook_col], [row, new_rook_col]]
+  end
+
+  def queen_castle(row)
+    old_rook_col = 0
+    new_rook_col = 3
+    [[row, old_rook_col], [row, new_rook_col]]
+  end
+
+  def pieces
+    grid.flatten.reject(&:empty?)
+  end
+
+  def find_king(color)
+    pieces.find { |piece| piece.instance_of?(King) && piece.color == turn_color }
+  end
+end

@@ -13,7 +13,7 @@ module Sliding
       new_pos = [row + dx, col + dy]
       populate_sliding_moves(new_pos, dir_pos, grid)
     end
-    moves.values.flatten(1).compact.reject(&:empty?)
+    # moves.values.flatten(1).compact.reject(&:empty?)
   end
 
   private
@@ -31,7 +31,7 @@ module Sliding
     dx, dy = dir_pos
     while valid_location?([nx, ny])
       coord = grid[nx][ny]
-      moves[:moves] << [nx, ny] if empty_location?(coord)
+      moves[:moves] << [nx, ny] if coord.empty?
       moves[:captures] << [nx, ny] if enemy?(coord)
       break if ally?(coord) || enemy?(coord)
 

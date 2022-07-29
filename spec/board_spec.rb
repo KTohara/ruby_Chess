@@ -192,7 +192,6 @@ describe Board do
     end
 
     it 'should set board.last_move to the end position' do
-      black_pawn = board[black_pawn_a7]
       board.move_piece(black_pawn_a7, pos_a6)
       expect(board.last_move).to eq(pos_a6)
     end
@@ -218,7 +217,7 @@ describe Board do
 
       it 'should replace the black pawn position with a null piece' do
         board.instance_variable_set(:@grid, grid)
-        wpa.instance_variable_set(:@moves, { en_passant: [emp] })
+        wpa.instance_variable_set(:@moves, { en_passant: [emp], castling: [] })
         board.move_piece(wh_pawn_pos, emp)
         expect(board[bl_pawn_pos]).to be_a_kind_of(NullPiece)
       end

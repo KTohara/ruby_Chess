@@ -29,7 +29,7 @@ class Pawn < Piece
   def single_jump(grid)
     move = [row + pawn_direction, col]
     piece = grid[row + pawn_direction][col]
-    moves[:moves] << move if valid_location?(move) && empty_location?(piece)
+    moves[:moves] << move if valid_location?(move) && piece.empty?
   end
 
   def double_jump(grid)
@@ -38,12 +38,12 @@ class Pawn < Piece
     double_jump_row = row + (pawn_direction * 2)
     move = [double_jump_row, col]
     piece_two_ahead = grid[double_jump_row][col]
-    moves[:moves] << move if empty_location?(piece_two_ahead)
+    moves[:moves] << move if piece_two_ahead.empty?
   end
 
   def jump_blocked?(grid)
     piece_one_ahead = grid[row + pawn_direction][col]
-    moved || !empty_location?(piece_one_ahead)
+    moved || !piece_one_ahead.empty?
   end
 
   def captures(grid)
@@ -102,7 +102,7 @@ class Pawn < Piece
 
     enemy_pawn = grid[enemy_pos[0]][enemy_pos[1]]
     end_location = grid[end_pos[0]][end_pos[1]]
-    return false unless empty_location?(end_location)
+    return false unless end_location.empty?
 
     enemy?(enemy_pawn) && en_passant
   end
