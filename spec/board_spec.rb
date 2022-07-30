@@ -164,12 +164,37 @@ describe Board do
       expect { board.validate_end_pos(black_pawn_a7, pos_d4, turn_color) }.to raise_error('Invalid move for this piece')
     end
 
-    it 'should raise an error if the end position puts the king in check'
-
     it 'returns nil if no errors are raised' do
       black_pawn = board[black_pawn_a7]
       black_pawn.instance_variable_set(:@moves, { moves: [pos_a6] })
       expect(board.validate_end_pos(black_pawn_a7, pos_a6, turn_color)).to be_nil
+    end
+
+    context 'when the move causes a king to be put in check' do
+      let(:bki) { King.new(:black, [7, 6]) }
+      let(:wrk) { Rook.new(:white, [0, 7]) }
+      let(:emp) { NullPiece.new }
+      let(:turn_color) { :black }
+      let(:grid) do
+        [
+          [emp, emp, emp, emp, emp, emp, emp, wrk],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, bki, emp]
+        ]
+      end
+
+      it 'raises an error' do
+        black_king_g1 = [7, 6]
+        check_pos_h1 = [7, 7]
+        board.instance_variable_set(:@grid, grid)
+        bki.instance_variable_set(:@moves, { moves: [check_pos_h1] })
+        expect { board.validate_end_pos(black_king_g1, check_pos_h1, turn_color) }.to raise_error('Move puts king in check')
+      end
     end
   end
 
@@ -202,8 +227,6 @@ describe Board do
     context 'if the starting position piece (white pawn) has an en passant move as the ending move' do
       let(:bpa) { Pawn.new(:black, [3, 1]) }
       let(:wpa) { Pawn.new(:white, [3, 2]) }
-      let(:wh_pawn_pos) { wpa.pos }
-      let(:bl_pawn_pos) { bpa.pos }
       let(:emp) { [2, 1] }
       let(:grid) do
         [
@@ -220,24 +243,91 @@ describe Board do
 
       it 'should replace the black pawn position with a null piece' do
         board.instance_variable_set(:@grid, grid)
-        wpa.instance_variable_set(:@moves, { en_passant: [emp], castling: [] })
-        board.move_piece(wh_pawn_pos, emp)
-        expect(board[bl_pawn_pos]).to be_a_kind_of(NullPiece)
+        wpa.instance_variable_set(:@moves, { en_passant: [[2, 1]], castling: [] })
+        board.move_piece(wpa.pos, emp)
+        expect(board[bpa.pos]).to be_a_kind_of(NullPiece)
       end
     end
 
     context 'if the starting position piece (white king) can king side castle' do
-      it 'should place the white king at position [7, 6]'
-      it 'should place the right white rook at position [7, 5]'
-      it 'should replace the king with a null piece at position [7, 4]'
-      it 'should replace the rook with a null piece at position [7, 7]'
+      let(:wki) { King.new(:white, [7, 4]) }
+      let(:wrk) { Rook.new(:white, [7, 7]) }
+      let(:emp) { NullPiece.new }
+      let(:grid) do
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, wki, emp, emp, wrk]
+        ]
+      end
+
+      before do
+        board.instance_variable_set(:@grid, grid)
+        wki.instance_variable_set(:@moves, { en_passant: [], castling: [[7, 6]] })
+        board.move_piece(wki.pos, [7, 6])
+      end
+
+      it 'should place the white king at position [7, 6]' do
+        expect(wki.pos).to eq([7, 6])
+      end
+
+      it 'should place the right white rook at position [7, 5]' do
+        expect(wrk.pos).to eq([7, 5])
+      end
+
+      it 'should replace the king with a null piece at position [7, 4]' do
+        expect(board[[7, 4]]).to be_a_kind_of(NullPiece)
+      end
+
+      it 'should replace the rook with a null piece at position [7, 7]' do
+        expect(board[[7, 7]]).to be_a_kind_of(NullPiece)
+      end
     end
 
     context 'if the starting position piece (black king) can queen side castle' do
-      it 'should place the black king at position [0, 2]'
-      it 'should place the left black rook at position [0, 3]'
-      it 'should replace the king with a null piece at position [0, 4]'
-      it 'should replace the rook with a null piece at position [0, 0]'
+      let(:bki) { King.new(:black, [0, 4]) }
+      let(:brk) { Rook.new(:black, [0, 0]) }
+      let(:emp) { NullPiece.new }
+      let(:grid) do
+        [
+          [brk, emp, emp, emp, bki, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil]
+        ]
+      end
+
+      before do
+        board.instance_variable_set(:@grid, grid)
+        bki.instance_variable_set(:@moves, { en_passant: [], castling: [[0, 2]] })
+        board.move_piece(bki.pos, [0, 2])
+      end
+
+      it 'should place the black king at position [0, 2]' do
+        expect(bki.pos).to eq([0, 2])
+      end
+
+      it 'should place the left black rook at position [0, 3]' do
+        expect(brk.pos).to eq([0, 3])
+      end
+
+      it 'should replace the king with a null piece at position [0, 4]' do
+        expect(board[[0, 4]]).to be_a_kind_of(NullPiece)
+      end
+
+      it 'should replace the rook with a null piece at position [0, 0]' do
+        expect(board[[0, 0]]).to be_a_kind_of(NullPiece)
+      end
+
     end
   end
 
@@ -264,6 +354,87 @@ describe Board do
 
       it 'should return false if the position is taken by a piece' do
         expect(board.empty?([0, 0])).to be false
+      end
+    end
+  end
+
+  describe '#check?' do
+    let(:bki) { King.new(:black, [7, 7]) }
+    let(:emp) { NullPiece.new }
+    let(:turn_color) { :black }
+
+    context "when a player can capture the opponent's king in the next turn" do
+      let(:wqn) { Queen.new(:white, [5, 7]) }
+      let(:grid) do
+        [
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, wqn],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, bki]
+        ]
+      end
+      it 'returns true' do
+        board.instance_variable_set(:@grid, grid)
+        expect(board.check?(turn_color)).to be true
+      end
+    end
+
+    context "when a player cannot capture the opponent's king in the next turn" do
+      let(:wqn) { Queen.new(:white, [5, 6]) }
+      let(:grid) do
+        [
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, wqn, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, bki]
+        ]
+      end
+      it 'returns false' do
+        board.instance_variable_set(:@grid, grid)
+        expect(board.check?(turn_color)).to be false
+      end
+    end
+  end
+
+  describe '#checkmate?' do
+    let(:bki) { King.new(:black, [7, 7]) }
+    let(:emp) { NullPiece.new }
+    let(:turn_color) { :black }
+
+    context 'when a player is in checkmate' do
+      let(:wqn) { Queen.new(:white, [7, 5]) }
+      let(:wrk) { Rook.new(:white, [5, 7])}
+      let(:grid) do
+        [
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, wrk],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, wqn, emp, bki]
+        ]
+      end
+      it "returns true if the player's king cannot escape a capture" do
+        board.instance_variable_set(:@grid, grid)
+        expect(board.checkmate?(turn_color)).to be true
+      end
+
+      it "returns false if the player's king can escape a capture" do
+        board.instance_variable_set(:@grid, grid)
+        queen_f1 = [7, 5]
+        queen_f3 = [7, 3]
+        board.move_piece(queen_f1, queen_f3)
+        expect(board.checkmate?(turn_color)).to be false
       end
     end
   end

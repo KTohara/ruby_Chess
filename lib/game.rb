@@ -88,7 +88,3 @@ Game.new.play if $PROGRAM_NAME == __FILE__
 # cursor - handle saves
 
 # TEST:
-# king castling - check
-# board.check
-# board.checkmate
-# board.move_piece - disallow castling

@@ -86,6 +86,12 @@ class Pawn < Piece
     [ex - pawn_direction, ey]
   end
 
+  def pawn_promotion?(pos)
+    current_pawn_row = pos.last
+    promotion_row = color == :white ? 0 : 7
+    current_pawn_row == promotion_row
+  end
+
   private
 
   def en_passant_dir

@@ -100,4 +100,19 @@ class Display
     notifications.delete(:error)
     notifications.delete(:check)
   end
+
+  def pawn_promotion_notification
+    notification[:promotion] = "Pawn promotion! Choose an option: #{promotion_options}"
+  end
+
+  def promotion_options
+    puts <<~PROMOTION
+      "
+      [1] Rook
+      [2] Knight
+      [3] Bishop
+      [4] Queen
+      "
+    PROMOTION
+  end
 end

@@ -5,7 +5,7 @@ require 'io/console'
 KEYMAP = {
   ' ' => :space,
   's' => :save,
-  'd' => :right,
+  'd' => :draw,
   "\t" => :tab,
   "\r" => :return,
   "\n" => :newline,
@@ -71,14 +71,16 @@ class Cursor
       exit(0)
     when :save
       save
+    when :draw
+      draw
     when :up, :down, :left, :right
-      diff = MOVES[key]
-      update_pos(diff)
+      pos_diff = MOVES[key]
+      update_pos(pos_diff)
       nil
     end
   end
 
-  def update_pos(diff)
+  def update_pos(pos_diff)
     row, col = cursor_pos
     dx, dy = diff
     new_pos = [row + dx, col + dy]
@@ -88,5 +90,10 @@ class Cursor
   # WIP
   def save
     raise 'saving'
+  end
+
+  # WIP
+  def draw
+    raise 'draw game'
   end
 end

@@ -2,7 +2,7 @@
 
 require_relative 'pieces'
 require_relative 'special_moves'
-
+require 'byebug'
 # Board basic logic
 class Board
   include SpecialMoves
@@ -38,8 +38,9 @@ class Board
   def validate_end_pos(start_pos, end_pos, turn_color)
     start_piece = self[start_pos]
     moves = start_piece.list_all_moves
+
     raise 'Invalid move for this piece' unless moves.include?(end_pos)
-    raise 'Move puts king in check' if in_check?(turn_color, start_pos, end_pos)
+    raise 'Move puts king in check' if move_causes_check?(turn_color, start_pos, end_pos)
   end
 
   def move_piece(start_pos, end_pos)
@@ -47,6 +48,7 @@ class Board
     self[end_pos] = piece
     en_passant_move(piece, end_pos) if piece.moves[:en_passant].include?(end_pos)
     castling_move(end_pos) if piece.moves[:castling].include?(end_pos)
+    promote_pawn if piece.pawn_promotion?(end_pos)
     self[start_pos] = NullPiece.new
     piece.update(end_pos, grid)
     @last_move = end_pos
@@ -59,6 +61,22 @@ class Board
 
   def empty?(pos)
     self[pos].empty?
+  end
+
+  def check?(turn_color)
+    update_all_moves
+    enemy_pieces(turn_color).any? do |piece|
+      piece.list_all_captures.include?(king_pos(turn_color))
+    end
+  end
+
+  def checkmate?(turn_color)
+    return false unless check?(turn_color)
+
+    ally_pieces(turn_color).none? do |piece|
+      moves = piece.list_all_moves
+      moves.any? { |move| !move_causes_check?(turn_color, piece.pos, move) }
+    end
   end
 
   private

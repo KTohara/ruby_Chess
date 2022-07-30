@@ -26,7 +26,7 @@ class King < Piece
   def king_side_castling(grid)
     rook_col = 7
     king_side = grid[row][rook_col]
-    return if moved || king_side.empty? || king_side.moved
+    return if moved || king_side.empty? || king_side.moved || !king_side.instance_of?(Rook)
 
     king_side_pos = [row, col + 2]
     moves[:castling] << king_side_pos if rook_path_clear?(grid, rook_col)
@@ -35,7 +35,7 @@ class King < Piece
   def queen_side_castling(grid)
     rook_col = 0
     queen_side = grid[row][rook_col]
-    return if moved || queen_side.empty? || queen_side.moved
+    return if moved || queen_side.empty? || queen_side.moved || !queen_side.instance_of?(Rook)
 
     queen_side_pos = [row, col - 2]
     moves[:castling] << queen_side_pos if rook_path_clear?(grid, rook_col)
