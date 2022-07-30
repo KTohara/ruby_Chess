@@ -49,13 +49,17 @@ class Piece
     # subclass attribute
   end
 
-  def valid_moves
+  def update_moves
     # subclass / module method
   end
 
   def list_all_moves
     moves.values.flatten(1).compact
     # moves.values.flatten(1).compact.reject(&:empty?)
+  end
+
+  def list_all_captures
+    moves[:captures] + moves[:en_passant]
   end
 
   private
@@ -80,5 +84,13 @@ class Piece
     elsif enemy?(piece)
       moves[:captures] << new_pos
     end
+  end
+
+  def add_move(move_pos)
+    moves[:moves] << move_pos
+  end
+
+  def add_capture(capture_pos)
+    moves[:captures] << capture_pos
   end
 end

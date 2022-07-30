@@ -11,7 +11,7 @@ describe Pawn do
   let(:emp) { instance_double(NullPiece, 'Empty', color: :none, empty?: true) }
   let(:last_move) { board.last_move }
 
-  describe '#valid_moves' do
+  describe '#update_moves' do
     context 'when the pawn has no moves' do
       subject(:bpa) { described_class.new(:black, [1, 0]) }
       let(:grid) do
@@ -28,7 +28,7 @@ describe Pawn do
       end
 
       it 'returns empty' do
-        bpa.valid_moves(grid, last_move)
+        bpa.update_moves(grid, last_move)
         moves = bpa.moves
         expect(moves).to be_empty
       end
@@ -51,11 +51,11 @@ describe Pawn do
       end
 
       it 'returns a position regardless of color' do
-        bpa.valid_moves(grid, last_move)
+        bpa.update_moves(grid, last_move)
         bl_moves = bpa.moves[:moves]
         expect(bl_moves).to contain_exactly([2, 7])
 
-        wpa.valid_moves(grid, last_move)
+        wpa.update_moves(grid, last_move)
         wh_moves = wpa.moves[:moves]
         expect(wh_moves).to contain_exactly([5, 0])
       end

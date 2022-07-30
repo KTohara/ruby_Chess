@@ -5,7 +5,7 @@ module Sliding
   HORIZONTAL_AND_VERTICAL_DIRS = [[-1, 0], [0, -1], [0, 1], [1, 0]].freeze
   DIAGONAL_DIRS = [[-1, -1], [-1, 1], [1, -1], [1, 1]].freeze
 
-  def valid_moves(grid, _last_move)
+  def update_moves(grid, _last_move)
     reset_moves
 
     move_set.each do |dir_pos|
@@ -27,16 +27,13 @@ module Sliding
   end
 
   def populate_sliding_moves(new_pos, dir_pos, grid)
-    nx, ny = new_pos
     dx, dy = dir_pos
-    while valid_location?([nx, ny])
-      coord = grid[nx][ny]
-      moves[:moves] << [nx, ny] if coord.empty?
-      moves[:captures] << [nx, ny] if enemy?(coord)
-      break if ally?(coord) || enemy?(coord)
+    while valid_location?(new_pos)
+      piece = grid[new_pos[0]][new_pos[1]]
+      add_moves(new_pos, piece)
+      break unless piece.empty?
 
-      nx += dx
-      ny += dy
+      new_pos = [new_pos[0] + dx, new_pos[1] + dy]
     end
   end
 end

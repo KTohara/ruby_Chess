@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'board'
+require 'special_moves'
 
 describe Board do
   subject(:board) { described_class.new }
@@ -160,13 +161,15 @@ describe Board do
     let(:pos_a6) { [2, 0] }
 
     it 'should raise an error if the end position is not a valid move' do
-      expect { board.validate_end_pos(black_pawn_a7, pos_d4) }.to raise_error('Invalid move for this piece')
+      expect { board.validate_end_pos(black_pawn_a7, pos_d4, turn_color) }.to raise_error('Invalid move for this piece')
     end
+
+    it 'should raise an error if the end position puts the king in check'
 
     it 'returns nil if no errors are raised' do
       black_pawn = board[black_pawn_a7]
       black_pawn.instance_variable_set(:@moves, { moves: [pos_a6] })
-      expect(board.validate_end_pos(black_pawn_a7, pos_a6)).to be_nil
+      expect(board.validate_end_pos(black_pawn_a7, pos_a6, turn_color)).to be_nil
     end
   end
 
@@ -221,6 +224,20 @@ describe Board do
         board.move_piece(wh_pawn_pos, emp)
         expect(board[bl_pawn_pos]).to be_a_kind_of(NullPiece)
       end
+    end
+
+    context 'if the starting position piece (white king) can king side castle' do
+      it 'should place the white king at position [7, 6]'
+      it 'should place the right white rook at position [7, 5]'
+      it 'should replace the king with a null piece at position [7, 4]'
+      it 'should replace the rook with a null piece at position [7, 7]'
+    end
+
+    context 'if the starting position piece (black king) can queen side castle' do
+      it 'should place the black king at position [0, 2]'
+      it 'should place the left black rook at position [0, 3]'
+      it 'should replace the king with a null piece at position [0, 4]'
+      it 'should replace the rook with a null piece at position [0, 0]'
     end
   end
 

@@ -12,7 +12,7 @@ describe Knight do
   let(:emp) { instance_double(NullPiece, color: :none, empty?: true) }
   let(:last_move) { board.last_move }
 
-  describe '#valid_moves' do
+  describe '#update_moves' do
     context 'when the knight has no moves' do
       subject(:bkn) { described_class.new(:black, [0, 5]) }
       let(:grid) do
@@ -29,7 +29,7 @@ describe Knight do
       end
 
       it 'returns an empty array' do
-        bkn.valid_moves(grid, last_move)
+        bkn.update_moves(grid, last_move)
         moves = bkn.moves[:moves]
         expect(moves).to be_empty
       end
@@ -51,7 +51,7 @@ describe Knight do
       end
 
       it 'should return all 8 moves' do
-        bkn.valid_moves(grid, last_move)
+        bkn.update_moves(grid, last_move)
         moves = bkn.moves[:moves]
         expect(moves).to contain_exactly([0, 3], [0, 5], [1, 2], [1, 6], [3, 2], [3, 6], [4, 3], [4, 5])
       end
@@ -73,13 +73,13 @@ describe Knight do
       end
 
       it 'returns 1 move' do
-        bkn.valid_moves(grid, last_move)
+        bkn.update_moves(grid, last_move)
         moves = bkn.moves[:moves]
         expect(moves).to contain_exactly([0, 3])
       end
 
       it 'returns 3 captures' do
-        bkn.valid_moves(grid, last_move)
+        bkn.update_moves(grid, last_move)
         captures = bkn.moves[:captures]
         expect(captures).to contain_exactly([1, 2], [3, 2], [4, 3])
       end

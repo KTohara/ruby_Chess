@@ -4,12 +4,6 @@ require 'io/console'
 
 KEYMAP = {
   ' ' => :space,
-  'h' => :left,
-  'j' => :down,
-  'k' => :up,
-  'l' => :right,
-  'w' => :up,
-  'a' => :left,
   's' => :save,
   'd' => :right,
   "\t" => :tab,
@@ -20,10 +14,7 @@ KEYMAP = {
   "\e[B" => :down,
   "\e[C" => :right,
   "\e[D" => :left,
-  "\177" => :backspace,
-  "\004" => :delete,
-  "\u0003" => :ctrl_c,
-  "\u0013" => :ctrl_s
+  "\u0003" => :ctrl_c
 }.freeze
 
 MOVES = {
@@ -77,7 +68,7 @@ class Cursor
       toggle_selected
       cursor_pos
     when :ctrl_c
-      exit 0
+      exit(0)
     when :save
       save
     when :up, :down, :left, :right
@@ -94,6 +85,7 @@ class Cursor
     @cursor_pos = new_pos if new_pos.all? { |axis| axis.between?(0, 7) }
   end
 
+  # WIP
   def save
     raise 'saving'
   end

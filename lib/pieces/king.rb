@@ -11,7 +11,7 @@ class King < Piece
     color == :white ? '♔' : '♚'
   end
 
-  def valid_moves(grid, _last_move)
+  def update_moves(grid, _last_move)
     super
     king_side_castling(grid)
     queen_side_castling(grid)

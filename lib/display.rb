@@ -92,7 +92,12 @@ class Display
     notifications.each_value { |error| puts error }
   end
 
+  def check_notification
+    notifications[:check] = 'King is in check!'
+  end
+
   def reset_notifications
     notifications.delete(:error)
+    notifications.delete(:check)
   end
 end

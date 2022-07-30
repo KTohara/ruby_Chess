@@ -11,7 +11,7 @@ describe Queen do
   let(:emp) { instance_double(NullPiece, color: :none, empty?: true) }
   let(:last_move) { board.last_move }
 
-  describe '#valid_moves' do
+  describe '#update_moves' do
     context 'when the queen has no moves' do
       subject(:wqn) { described_class.new(:white, [7, 3]) }
       let(:grid) do
@@ -28,7 +28,7 @@ describe Queen do
       end
 
       it 'returns an empty array' do
-        wqn.valid_moves(grid, last_move)
+        wqn.update_moves(grid, last_move)
         moves = wqn.moves[:moves]
         expect(moves).to be_empty
       end
@@ -50,7 +50,7 @@ describe Queen do
       end
 
       it 'should return 6 moves' do
-        wqn.valid_moves(grid, last_move)
+        wqn.update_moves(grid, last_move)
         moves = wqn.moves[:moves]
         expect(moves).to contain_exactly([1, 3], [2, 5], [2, 6], [3, 3], [4, 2], [5, 1])
       end
@@ -72,13 +72,13 @@ describe Queen do
       end
 
       it 'returns 4 moves' do
-        wqn.valid_moves(grid, last_move)
+        wqn.update_moves(grid, last_move)
         moves = wqn.moves[:moves]
         expect(moves).to contain_exactly([1, 3], [2, 5], [3, 4], [4, 4])
       end
 
       it 'returns 3 captures' do
-        wqn.valid_moves(grid, last_move)
+        wqn.update_moves(grid, last_move)
         captures = wqn.moves[:captures]
         expect(captures).to contain_exactly([0, 2], [5, 4], [3, 5])
       end

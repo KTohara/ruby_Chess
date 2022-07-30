@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# require_relative 'piece'
+require_relative 'piece'
 
 # Empty board space
 class NullPiece
@@ -17,5 +17,13 @@ class NullPiece
 
   def empty?
     true
+  end
+
+  def enemy?(_turn_color)
+    false
+  end
+
+  def ally?(_turn_color)
+    false
   end
 end

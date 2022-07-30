@@ -17,19 +17,18 @@ class Pawn < Piece
     color == :white ? '♙' : '♟'
   end
 
-  def valid_moves(grid, last_move)
+  def update_moves(grid, last_move)
     reset_moves
     single_jump(grid)
     double_jump(grid)
     captures(grid)
     en_passant_capture(grid, last_move)
-    # moves.values.flatten(1)
   end
 
   def single_jump(grid)
     move = [row + pawn_direction, col]
     piece = grid[row + pawn_direction][col]
-    moves[:moves] << move if valid_location?(move) && piece.empty?
+    add_move(move) if valid_location?(move) && piece.empty?
   end
 
   def double_jump(grid)
@@ -38,7 +37,7 @@ class Pawn < Piece
     double_jump_row = row + (pawn_direction * 2)
     move = [double_jump_row, col]
     piece_two_ahead = grid[double_jump_row][col]
-    moves[:moves] << move if piece_two_ahead.empty?
+    add_move(move) if piece_two_ahead.empty?
   end
 
   def jump_blocked?(grid)
@@ -52,7 +51,7 @@ class Pawn < Piece
       cy = col + capture_direction
       capture_pos = [cx, cy]
       piece = grid[cx][cy]
-      moves[:captures] << capture_pos if valid_location?(capture_pos) && enemy?(piece)
+      add_capture(capture_pos) if valid_location?(capture_pos) && enemy?(piece)
     end
   end
 
@@ -66,7 +65,7 @@ class Pawn < Piece
       end_pos = [dx + pawn_direction, dy]
       next unless valid_location?(enemy_pos) && valid_en_passant?(grid, enemy_pos, end_pos, last_move)
 
-      moves[:en_passant] << end_pos
+      add_en_passant(end_pos)
     end
   end
 
@@ -74,11 +73,11 @@ class Pawn < Piece
     en_passant_dir.each do |dx, dy|
       dx += row
       dy += col
-      enemy_pos = [dx, dy]
-      enemy = grid[dx][dy]
-      next unless valid_location?(enemy_pos) && enemy.instance_of?(Pawn) && enemy?(enemy)
+      piece_pos = [dx, dy]
+      piece = grid[dx][dy]
+      next unless valid_location?(piece_pos) && piece.instance_of?(Pawn) && enemy?(piece)
 
-      enemy.en_passant = true if first_move_double_jump?
+      piece.en_passant = true if first_move_double_jump?
     end
   end
 
@@ -109,5 +108,9 @@ class Pawn < Piece
 
   def first_move_double_jump?
     moved == false && [1, 6].include?(row - (pawn_direction * 2))
+  end
+
+  def add_en_passant(ep_pos)
+    moves[:en_passant] << ep_pos
   end
 end

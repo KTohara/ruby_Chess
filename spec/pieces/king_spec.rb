@@ -12,7 +12,7 @@ describe King do
   let(:emp) { instance_double(NullPiece, color: :none, empty?: true) }
   let(:last_move) { board.last_move }
 
-  describe '#valid_moves' do
+  describe '#update_moves' do
     context 'when the king has no moves' do
       subject(:bki) { described_class.new(:black, [0, 4]) }
       let(:grid) do
@@ -30,9 +30,9 @@ describe King do
 
       it 'returns an empty array' do
         allow(bki).to receive(:moved).and_return(true)
-        bki.valid_moves(grid, last_move)
-        valid_moves = bki.moves[:moves]
-        expect(valid_moves).to be_empty
+        bki.update_moves(grid, last_move)
+        update_moves = bki.moves[:moves]
+        expect(update_moves).to be_empty
       end
     end
 
@@ -53,9 +53,9 @@ describe King do
 
       it 'should return all 8 moves' do
         allow(bki).to receive(:moved).and_return(true)
-        bki.valid_moves(grid, last_move)
-        valid_moves = bki.moves[:moves]
-        expect(valid_moves).to contain_exactly([0, 3], [0, 4], [0, 5], [1, 3], [1, 5], [2, 3], [2, 4], [2, 5])
+        bki.update_moves(grid, last_move)
+        update_moves = bki.moves[:moves]
+        expect(update_moves).to contain_exactly([0, 3], [0, 4], [0, 5], [1, 3], [1, 5], [2, 3], [2, 4], [2, 5])
       end
     end
 
@@ -76,14 +76,14 @@ describe King do
 
       it 'returns 1 move' do
         allow(bki).to receive(:moved).and_return(true)
-        bki.valid_moves(grid, last_move)
-        valid_moves = bki.moves[:moves]
-        expect(valid_moves).to contain_exactly([0, 4])
+        bki.update_moves(grid, last_move)
+        update_moves = bki.moves[:moves]
+        expect(update_moves).to contain_exactly([0, 4])
       end
 
       it 'returns 3 captures' do
         allow(bki).to receive(:moved).and_return(true)
-        bki.valid_moves(grid, last_move)
+        bki.update_moves(grid, last_move)
         valid_captures = bki.moves[:captures]
         expect(valid_captures).to contain_exactly([0, 3], [1, 5], [2, 4])
       end
@@ -108,14 +108,14 @@ describe King do
       end
       it 'should handle king side castling' do
         allow(bki).to receive(:moved).and_return(false)
-        bki.valid_moves(grid, last_move)
+        bki.update_moves(grid, last_move)
         king_castling = bki.moves[:castling]
         expect(king_castling).to contain_exactly([0, 6])
       end
 
       it 'should handle queen side castling' do
         allow(wki).to receive(:moved).and_return(false)
-        wki.valid_moves(grid, last_move)
+        wki.update_moves(grid, last_move)
         queen_castling = wki.moves[:castling]
         expect(queen_castling).to contain_exactly([7, 2])
       end
@@ -140,21 +140,21 @@ describe King do
       end
       it 'cannot castle if there is a piece between rooks' do
         allow(bki).to receive(:moved).and_return(false)
-        bki.valid_moves(grid, last_move)
+        bki.update_moves(grid, last_move)
         king_castling = bki.moves[:castling]
         expect(king_castling).to be_empty
       end
 
       it 'cannot castle if the king moved' do
         allow(bki).to receive(:moved).and_return(true)
-        bki.valid_moves(grid, last_move)
+        bki.update_moves(grid, last_move)
         king_castling = bki.moves[:castling]
         expect(king_castling).to be_empty
       end
 
       it 'cannot castle if the rook has been moved' do
         allow(wrk).to receive(:moved).and_return(true)
-        wki.valid_moves(grid, last_move)
+        wki.update_moves(grid, last_move)
         queen_castling = wki.moves[:castling]
         expect(queen_castling).to be_empty
       end
@@ -178,14 +178,6 @@ describe King do
       end
 
       xit 'will not return a move' do
-
-      end
-    end
-    
-
-    context 'when a move would put the king in check or checkmate' do
-      xit 'will not return that position as a move' do
-
       end
     end
   end
