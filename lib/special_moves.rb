@@ -85,8 +85,13 @@ module SpecialMoves
   end
 
   # pawn promotion prompt
-  def promote_pawn(input)
-    case input
-      
+  def promote_pawn(input, color, end_pos)
+    piece = case input
+      when 1 then Rook.new(color, end_pos)
+      when 2 then Knight.new(color, end_pos)
+      when 3 then Bishop.new(color, end_pos)
+      when 4 then Queen.new(color, end_pos)
+    end
+    self[end_pos] = piece
   end
 end

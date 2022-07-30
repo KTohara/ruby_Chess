@@ -2,6 +2,7 @@
 
 require_relative 'pieces'
 require_relative 'special_moves'
+
 require 'byebug'
 # Board basic logic
 class Board
@@ -43,16 +44,20 @@ class Board
     raise 'Move puts king in check' if move_causes_check?(turn_color, start_pos, end_pos)
   end
 
-  def move_piece(start_pos, end_pos)
+  def move_piece(display, start_pos, end_pos)
     piece = self[start_pos]
     self[end_pos] = piece
     en_passant_move(piece, end_pos) if piece.moves[:en_passant].include?(end_pos)
     castling_move(end_pos) if piece.moves[:castling].include?(end_pos)
-    promote_pawn if piece.pawn_promotion?(end_pos)
+    promote_pawn(display.promotion_options, piece.color, end_pos) if promotable?(piece, end_pos)
     self[start_pos] = NullPiece.new
     piece.update(end_pos, grid)
     @last_move = end_pos
     nil
+  end
+
+  def promotable?(piece, pos)
+    piece.instance_of?(Pawn) && piece.pawn_promotion?(pos)
   end
 
   def valid_pos?(pos)

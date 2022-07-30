@@ -82,7 +82,7 @@ class Cursor
 
   def update_pos(pos_diff)
     row, col = cursor_pos
-    dx, dy = diff
+    dx, dy = pos_diff
     new_pos = [row + dx, col + dy]
     @cursor_pos = new_pos if new_pos.all? { |axis| axis.between?(0, 7) }
   end

@@ -43,7 +43,7 @@ class Game
     board.validate_start_pos(current_player, start_pos)
     end_pos = prompt_end_pos(current_player, start_pos)
     board.validate_end_pos(start_pos, end_pos, current_player)
-    board.move_piece(start_pos, end_pos)
+    board.move_piece(display, start_pos, end_pos)
   end
 
   def switch_player

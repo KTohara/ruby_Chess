@@ -9,7 +9,7 @@ class Display
 
   COLUMN_LETTERS = ('a'..'h').to_a.freeze
 
-  attr_reader :board, :cursor, :notifications
+  attr_reader :cursor, :notifications
 
   def initialize
     @cursor = Cursor.new([7, 0])
@@ -102,17 +102,29 @@ class Display
   end
 
   def pawn_promotion_notification
-    notification[:promotion] = "Pawn promotion! Choose an option: #{promotion_options}"
+    # notifications[:promotion] #{promotion_options}"
   end
 
   def promotion_options
-    puts <<~PROMOTION
-      "
+    message = <<~PROMOTION
+      Pawn promotion! Choose an option:
+
       [1] Rook
       [2] Knight
       [3] Bishop
       [4] Queen
-      "
     PROMOTION
+    puts message
+    input = gets.chomp.to_i
+    input_options = [1, 2, 3, 4]
+    validate_input(input, message, input_options)
+  end
+
+  def validate_input(input, message, input_options)
+    until input_options.include?(input)
+      puts message
+      input = gets.chomp.to_i
+    end
+    input
   end
 end

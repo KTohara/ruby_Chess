@@ -87,7 +87,9 @@ class Pawn < Piece
   end
 
   def pawn_promotion?(pos)
-    current_pawn_row = pos.last
+    return false unless instance_of?(Pawn)
+
+    current_pawn_row = pos.first
     promotion_row = color == :white ? 0 : 7
     current_pawn_row == promotion_row
   end
