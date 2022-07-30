@@ -16,71 +16,79 @@ class Game
       white: Player.new(:white),
       black: Player.new(:black)
     }
-    @current_player = players[:white]
+    @current_player = :white
   end
 
   def play
     until board.checkmate?(current_player)
       begin
-        start_pos = prompt_start_pos(current_player)
-        board.validate_start_pos(current_player.color, start_pos)
-        end_pos = prompt_end_pos(current_player, start_pos)
-        board.validate_end_pos(start_pos, end_pos, current_player.color)
-        board.move_piece(start_pos, end_pos)
+        player_turn
         switch_player
+        board_in_check
       rescue StandardError => e
         display.notifications[:error] = e.message
         display.cursor.selected = false
         retry
       end
     end
-
-    # display.render
-    # puts 'checkmate'
+    display.reset_notifications
+    display.render(board.grid)
+    puts 'Checkmate!'
   end
 
   private
 
-  def switch_player
-    @current_player = current_player == players[:white] ? players[:black] : players[:white]
+  def player_turn
+    start_pos = prompt_start_pos(current_player)
+    board.validate_start_pos(current_player, start_pos)
+    end_pos = prompt_end_pos(current_player, start_pos)
+    board.validate_end_pos(start_pos, end_pos, current_player)
+    board.move_piece(start_pos, end_pos)
   end
 
-  def prompt_start_pos(player, start_pos = nil)
+  def switch_player
+    @current_player = current_player == :white ? :black : :white
+  end
+
+  def prompt_start_pos(turn_color, start_pos = nil)
     until start_pos
       display.render(board.grid)
-      puts "#{player.color.to_s.capitalize}, choose a piece to move"
+      puts "#{turn_color.to_s.capitalize}, choose a piece to move"
       start_pos = display.cursor.key_input
     end
     display.reset_notifications
-
     start_pos
   end
 
-  def prompt_end_pos(player, start_pos, end_pos = nil)
+  def prompt_end_pos(turn_color, start_pos, end_pos = nil)
     until end_pos
       piece = board[start_pos]
-      piece.valid_moves(board.grid, board.last_move)
+      piece.update_moves(board.grid, board.last_move) # needed for mapping moves
       display.render(board.grid, piece)
-      puts "#{player.color.to_s.capitalize}, move the piece to a position"
+      puts "#{turn_color.to_s.capitalize}, move the piece to a position"
+      p piece.moves # use to debug
+      p board[start_pos] # use to debug
       end_pos = display.cursor.key_input
     end
     display.reset_notifications
-
     end_pos
+  end
+
+  def board_in_check
+    board.check?(current_player) ? display.check_notification : display.reset_notifications
   end
 end
 
 Game.new.play if $PROGRAM_NAME == __FILE__
 
 # TO DO:
-# king castling - implement system for check/mate
 # pawn promotion
-# Board.check
-# Board.checkmate
-# finish Board.valid_moves
 # notifications/error display
 # input loops
 # cursor - handle saves
 
 # TEST:
-# king check/mate
+# king castling - check
+# board.check
+# board.checkmate
+# board.move_piece - disallow castling
