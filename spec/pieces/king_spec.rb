@@ -108,6 +108,7 @@ describe King do
       end
       it 'should handle king side castling' do
         allow(bki).to receive(:moved).and_return(false)
+        allow(brk).to receive(:instance_of?).with(Rook).and_return(true)
         bki.update_moves(grid, last_move)
         king_castling = bki.moves[:castling]
         expect(king_castling).to contain_exactly([0, 6])
@@ -115,6 +116,7 @@ describe King do
 
       it 'should handle queen side castling' do
         allow(wki).to receive(:moved).and_return(false)
+        allow(wrk).to receive(:instance_of?).with(Rook).and_return(true)
         wki.update_moves(grid, last_move)
         queen_castling = wki.moves[:castling]
         expect(queen_castling).to contain_exactly([7, 2])

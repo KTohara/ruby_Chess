@@ -1,7 +1,29 @@
 # frozen_string_literal: true
 
-# Board methods for special rules
+# Handles board conditionals for specific piece special moves
 module SpecialMoves
+  # returns the type of special move
+  def special_move_type(start_pos, end_pos)
+    piece = self[start_pos]
+    if en_passant_move?(piece, end_pos)
+      :en_passant
+    elsif castling_move?(piece, end_pos)
+      :castling
+    elsif promotion_move?(piece)
+      :promotion
+    end
+  end
+
+  # calls special move method depending on type of move
+  def execute_special_move(special_move, start_pos, end_pos, input = nil)
+    start_piece = self[start_pos]
+    case special_move
+    when :en_passant then en_passant_move(start_piece, end_pos)
+    when :castling then castling_move(end_pos)
+    when :promotion then promotion_move(start_piece, input)
+    end
+  end
+
   private
 
   # returns all pieces on the board (white and black, no null)
@@ -19,12 +41,29 @@ module SpecialMoves
     pieces.select { |piece| piece.color == turn_color }
   end
 
-  # en passant methods
+  # boolean if piece can perform en passant
+  def en_passant_move?(piece, end_pos)
+    piece.moves[:en_passant].include?(end_pos)
+  end
+
+  # boolean if piece can castle
+  def castling_move?(piece, end_pos)
+    piece.moves[:castling].include?(end_pos)
+  end
+
+  # boolean if piece can be promoted
+  def promotion_move?(piece)
+    piece.instance_of?(Pawn) && piece.promotable?
+  end
+
+
+
+  # places a null piece in the enemy's position
   def en_passant_move(piece, end_pos)
     self[piece.en_passant_enemy_pos(end_pos)] = NullPiece.new
   end
 
-  # castling methods
+  # places null piece in rook's former position, and places rook in caslting position
   def castling_move(end_pos)
     row, col = end_pos
     old_rook_pos, new_rook_pos = col == 6 ? king_castle(row) : queen_castle(row)
@@ -46,6 +85,17 @@ module SpecialMoves
     old_rook_col = 0
     new_rook_col = 3
     [[row, old_rook_col], [row, new_rook_col]]
+  end
+
+  # replaces pawn with selected promotion piece
+  def promotion_move(piece, input = nil)
+    piece = case input
+            when 1 then Rook.new(piece.color, piece.pos)
+            when 2 then Knight.new(piece.color, piece.pos)
+            when 3 then Bishop.new(piece.color, piece.pos)
+            when 4 then Queen.new(piece.color, piece.pos)
+            end
+    self[piece.pos] = piece
   end
 
   # tests a move to see if it causes a king to be in check
@@ -82,16 +132,5 @@ module SpecialMoves
   # updates moves for all pieces on the board
   def update_all_moves
     pieces.each { |piece| piece.update_moves(grid, last_move) }
-  end
-
-  # pawn promotion prompt
-  def promote_pawn(input, color, end_pos)
-    piece = case input
-      when 1 then Rook.new(color, end_pos)
-      when 2 then Knight.new(color, end_pos)
-      when 3 then Bishop.new(color, end_pos)
-      when 4 then Queen.new(color, end_pos)
-    end
-    self[end_pos] = piece
   end
 end

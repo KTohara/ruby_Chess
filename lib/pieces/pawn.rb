@@ -40,11 +40,6 @@ class Pawn < Piece
     add_move(move) if piece_two_ahead.empty?
   end
 
-  def jump_blocked?(grid)
-    piece_one_ahead = grid[row + pawn_direction][col]
-    moved || !piece_one_ahead.empty?
-  end
-
   def captures(grid)
     [-1, 1].each do |capture_direction|
       cx = row + pawn_direction
@@ -58,7 +53,7 @@ class Pawn < Piece
   def en_passant_capture(grid, last_move)
     return unless [3, 4].include?(row)
 
-    en_passant_dir.each do |dx, dy|
+    EN_PASSANT_DIR.each do |dx, dy|
       dx += row
       dy += col
       enemy_pos = [dx, dy]
@@ -70,7 +65,7 @@ class Pawn < Piece
   end
 
   def update_en_passant(grid)
-    en_passant_dir.each do |dx, dy|
+    EN_PASSANT_DIR.each do |dx, dy|
       dx += row
       dy += col
       piece_pos = [dx, dy]
@@ -81,24 +76,18 @@ class Pawn < Piece
     end
   end
 
-  def en_passant_enemy_pos(pos)
-    ex, ey = pos
+  def en_passant_enemy_pos(enemy_pos)
+    ex, ey = enemy_pos
     [ex - pawn_direction, ey]
   end
 
-  def pawn_promotion?(pos)
-    return false unless instance_of?(Pawn)
-
-    current_pawn_row = pos.first
+  # checks if pawn and can be promoted
+  def promotable?
     promotion_row = color == :white ? 0 : 7
-    current_pawn_row == promotion_row
+    row + pawn_direction == promotion_row
   end
 
   private
-
-  def en_passant_dir
-    EN_PASSANT_DIR
-  end
 
   def pawn_direction
     color == :white ? -1 : 1
@@ -112,6 +101,11 @@ class Pawn < Piece
     return false unless end_location.empty?
 
     enemy?(enemy_pawn) && en_passant
+  end
+
+  def jump_blocked?(grid)
+    piece_one_ahead = grid[row + pawn_direction][col]
+    moved || !piece_one_ahead.empty?
   end
 
   def first_move_double_jump?

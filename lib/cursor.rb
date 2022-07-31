@@ -4,8 +4,8 @@ require 'io/console'
 
 KEYMAP = {
   ' ' => :space,
-  's' => :save,
-  'd' => :draw,
+  's' => :s,
+  'd' => :d,
   "\t" => :tab,
   "\r" => :return,
   "\n" => :newline,
@@ -34,6 +34,7 @@ class Cursor
     @selected = false
   end
 
+  # converts the key press into a designated method
   def key_input
     key = KEYMAP[read_char]
     handle_key(key)
@@ -45,6 +46,7 @@ class Cursor
 
   private
 
+  # returns user key press
   def read_char
     $stdin.echo = false
     $stdin.raw!
@@ -62,6 +64,11 @@ class Cursor
     input
   end
 
+  # return or space: returns the selected position of the cursor
+  # ctrl c: exits the game
+  # s: saves the game
+  # d: resign the game
+  # directions: updates the cursor by it's direction/move index
   def handle_key(key)
     case key
     when :return, :space
@@ -69,10 +76,10 @@ class Cursor
       cursor_pos
     when :ctrl_c
       exit(0)
-    when :save
+    when :s
       save
-    when :draw
-      draw
+    when :d
+      resign
     when :up, :down, :left, :right
       pos_diff = MOVES[key]
       update_pos(pos_diff)
@@ -80,6 +87,7 @@ class Cursor
     end
   end
 
+  # takes the index difference from MOVES hash, updates row/col of cursor position
   def update_pos(pos_diff)
     row, col = cursor_pos
     dx, dy = pos_diff
@@ -93,7 +101,7 @@ class Cursor
   end
 
   # WIP
-  def draw
-    raise 'draw game'
+  def resign
+    raise 'resign game'
   end
 end

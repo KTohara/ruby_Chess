@@ -1,32 +1,29 @@
 # frozen_string_literal: true
 
-require_relative 'cursor'
 require_relative 'colors'
 
-# Board render logic
-class Display
+# Board render
+module Display
   include Colors
 
   COLUMN_LETTERS = ('a'..'h').to_a.freeze
 
-  attr_reader :cursor, :notifications
-
-  def initialize
-    @cursor = Cursor.new([7, 0])
-    @notifications = {}
-  end
-
+  # main render method for board and notifications
+  # if given, selected gets mapped as the cursor
   def render(grid, selected = nil)
     system('clear')
     puts display_board(grid, selected)
-    display_notification
+    display_notifications
+    display_messages
   end
 
+  # maps the board with column letters and row numbers
   def display_board(grid, selected = nil)
     rows = map_board_rows(grid, selected).join("\n")
     "#{rows}\n   #{color_string(COLUMN_LETTERS.join('  '))} "
   end
 
+  # maps each row with a colored number representing the row, and its colored pieces
   def map_board_rows(grid, selected = nil)
     grid.map.with_index do |row, index|
       row_num = 8 - index
@@ -34,6 +31,8 @@ class Display
     end
   end
 
+  # maps each row index with a colored symbol, background
+  # maps a piece's moves into colored circles
   def map_board_pieces(row, pos_x, selected = nil)
     row.map.with_index do |piece, pos_y|
       pos = [pos_x, pos_y]
@@ -86,45 +85,5 @@ class Display
 
     selected_moves = selected.list_all_moves
     selected_moves.include?(pos) ? '░●░' : piece.to_s
-  end
-
-  def display_notification
-    notifications.each_value { |error| puts error }
-  end
-
-  def check_notification
-    notifications[:check] = 'King is in check!'
-  end
-
-  def reset_notifications
-    notifications.delete(:error)
-    notifications.delete(:check)
-  end
-
-  def pawn_promotion_notification
-    # notifications[:promotion] #{promotion_options}"
-  end
-
-  def promotion_options
-    message = <<~PROMOTION
-      Pawn promotion! Choose an option:
-
-      [1] Rook
-      [2] Knight
-      [3] Bishop
-      [4] Queen
-    PROMOTION
-    puts message
-    input = gets.chomp.to_i
-    input_options = [1, 2, 3, 4]
-    validate_input(input, message, input_options)
-  end
-
-  def validate_input(input, message, input_options)
-    until input_options.include?(input)
-      puts message
-      input = gets.chomp.to_i
-    end
-    input
   end
 end

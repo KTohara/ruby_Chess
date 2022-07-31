@@ -2,7 +2,7 @@
 
 require_relative 'piece'
 
-# Empty board space
+# Represents a empty space on the board
 class NullPiece
   attr_reader :symbol, :color
 
@@ -20,10 +20,6 @@ class NullPiece
   end
 
   def enemy?(_turn_color)
-    false
-  end
-
-  def ally?(_turn_color)
     false
   end
 end

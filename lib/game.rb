@@ -3,88 +3,91 @@
 require_relative 'board'
 require_relative 'player'
 require_relative 'display'
+require_relative 'cursor'
+require_relative 'messages'
 require 'byebug'
 
-# Game flow
+# Game loop
 class Game
-  attr_reader :board, :players, :current_player, :display
+  include Messages
+  include Display
+
+  attr_reader :board, :cursor, :turn_color, :display, :notifications, :messages
 
   def initialize
     @board = Board.new
-    @display = Display.new
+    @cursor = Cursor.new([7, 0])
     @players = {
       white: Player.new(:white),
       black: Player.new(:black)
     }
-    @current_player = :white
+    @turn_color = :white
+    @notifications = {}
+    @messages = {}
   end
 
   def play
-    until board.checkmate?(current_player)
+    until board.checkmate?(turn_color)
       begin
         player_turn
         switch_player
         board_in_check
       rescue StandardError => e
-        display.notifications[:error] = e.message
-        display.cursor.selected = false
+        notifications[:error] = e.message
+        cursor.selected = false
         retry
       end
     end
-    display.reset_notifications
-    display.render(board.grid)
-    puts 'Checkmate!'
+    game_result
   end
 
   private
 
   def player_turn
-    start_pos = prompt_start_pos(current_player)
-    board.validate_start_pos(current_player, start_pos)
-    end_pos = prompt_end_pos(current_player, start_pos)
-    board.validate_end_pos(start_pos, end_pos, current_player)
-    board.move_piece(display, start_pos, end_pos)
+    start_pos, end_pos = handle_move_validation
+    handle_special_moves(start_pos, end_pos)
+    board.move_piece(start_pos, end_pos)
+  end
+
+  def handle_move_validation
+    start_pos = prompt_start_pos(turn_color)
+    board.validate_start_pos(turn_color, start_pos)
+    end_pos = prompt_end_pos(turn_color, start_pos)
+    board.validate_end_pos(start_pos, end_pos, turn_color)
+    [start_pos, end_pos]
+  end
+
+  def handle_special_moves(start_pos, end_pos)
+    special_move = board.special_move_type(start_pos, end_pos)
+    input = special_move_msg(special_move, start_pos)
+    board.execute_special_move(special_move, start_pos, end_pos, input)
   end
 
   def switch_player
-    @current_player = current_player == :white ? :black : :white
-  end
-
-  def prompt_start_pos(turn_color, start_pos = nil)
-    until start_pos
-      display.render(board.grid)
-      puts "#{turn_color.to_s.capitalize}, choose a piece to move"
-      start_pos = display.cursor.key_input
-    end
-    display.reset_notifications
-    start_pos
-  end
-
-  def prompt_end_pos(turn_color, start_pos, end_pos = nil)
-    until end_pos
-      piece = board[start_pos]
-      piece.update_moves(board.grid, board.last_move) # needed for mapping moves
-      display.render(board.grid, piece)
-      puts "#{turn_color.to_s.capitalize}, move the piece to a position"
-      p piece.moves # use to debug
-      p board[start_pos] # use to debug
-      end_pos = display.cursor.key_input
-    end
-    display.reset_notifications
-    end_pos
+    @turn_color = turn_color == :white ? :black : :white
   end
 
   def board_in_check
-    board.check?(current_player) ? display.check_notification : display.reset_notifications
+    board.check?(turn_color) ? add_check_notification : reset_notifications
+  end
+
+  def game_result
+    reset_notifications
+    render(board.grid)
+    puts 'Checkmate!'
   end
 end
 
 Game.new.play if $PROGRAM_NAME == __FILE__
 
 # TO DO:
-# pawn promotion
-# notifications/error display
-# input loops
 # cursor - handle saves
+# cursor - handle draw/resign
+# game/board - stalemate
 
 # TEST:
+# game - #play, 
+# specialmoves - #execute_special_move, #special_move_type
+# king - castling into check
+# pawn - #update_en_passant, #en_passant_enemy_pos, #promotable?
+# piece - #update, #valid_location, #enemy, #list_all_moves, #list_all_captures

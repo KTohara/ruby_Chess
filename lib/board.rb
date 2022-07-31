@@ -2,11 +2,13 @@
 
 require_relative 'pieces'
 require_relative 'special_moves'
+require_relative 'messages'
 
 require 'byebug'
 # Board basic logic
 class Board
   include SpecialMoves
+  include Messages
 
   attr_reader :grid, :last_move
 
@@ -16,58 +18,59 @@ class Board
     create_board
   end
 
+  # returns element on grid by position
   def [](pos)
-    raise 'Invalid position' unless valid_pos?(pos)
+    raise PositionError unless valid_pos?(pos)
 
     row, col = pos
     @grid[row][col]
   end
 
+  # changes element on grid to a given piece, based on grid position
   def []=(pos, piece)
-    raise 'Invalid position' unless valid_pos?(pos)
+    raise PositionError unless valid_pos?(pos)
 
     row, col = pos
     @grid[row][col] = piece
   end
 
+  # validates starting position: position empty? piece is yours?
   def validate_start_pos(turn_color, start_pos)
     piece = self[start_pos]
-    raise 'Square is empty' if empty?(start_pos)
-    raise 'You must move your own pieces' if piece.color != turn_color
+
+    raise SquareError if empty?(start_pos)
+    raise OpponentError if piece.color != turn_color
   end
 
+  # validates ending position: piece can move to position? piece does not cause check?
   def validate_end_pos(start_pos, end_pos, turn_color)
     start_piece = self[start_pos]
     moves = start_piece.list_all_moves
 
-    raise 'Invalid move for this piece' unless moves.include?(end_pos)
-    raise 'Move puts king in check' if move_causes_check?(turn_color, start_pos, end_pos)
+    raise MoveError unless moves.include?(end_pos)
+    raise CheckError if move_causes_check?(turn_color, start_pos, end_pos)
   end
 
-  def move_piece(display, start_pos, end_pos)
+  # moves a piece to new location, places null piece in old location, updates last move
+  def move_piece(start_pos, end_pos)
     piece = self[start_pos]
     self[end_pos] = piece
-    en_passant_move(piece, end_pos) if piece.moves[:en_passant].include?(end_pos)
-    castling_move(end_pos) if piece.moves[:castling].include?(end_pos)
-    promote_pawn(display.promotion_options, piece.color, end_pos) if promotable?(piece, end_pos)
     self[start_pos] = NullPiece.new
     piece.update(end_pos, grid)
     @last_move = end_pos
-    nil
   end
 
-  def promotable?(piece, pos)
-    piece.instance_of?(Pawn) && piece.pawn_promotion?(pos)
-  end
-
+  # position is in bounds of grid
   def valid_pos?(pos)
     pos.all? { |axis| axis.between?(0, 7) }
   end
 
+  # position is empty?
   def empty?(pos)
     self[pos].empty?
   end
 
+  # check returns true if any enemy pieces have capture moves that include the king's position
   def check?(turn_color)
     update_all_moves
     enemy_pieces(turn_color).any? do |piece|
@@ -75,6 +78,7 @@ class Board
     end
   end
 
+  # checkmate returns true if player has no pieces with moves that do not cause a check
   def checkmate?(turn_color)
     return false unless check?(turn_color)
 
@@ -86,8 +90,7 @@ class Board
 
   private
 
-  attr_reader :null_piece
-
+  # fills the board with its respective colored pieces
   def create_board
     %i[white black].each do |color|
       fill_back_row(color)
@@ -95,6 +98,7 @@ class Board
     end
   end
 
+  # fills back row with respective colored pieces
   def fill_back_row(color)
     back_pieces = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
 
@@ -105,6 +109,7 @@ class Board
     end
   end
 
+  # fills front row with respective colored pawns
   def fill_pawns_row(color)
     row = color == :black ? 1 : 6
     8.times do |col|

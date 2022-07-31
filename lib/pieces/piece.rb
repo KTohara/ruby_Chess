@@ -20,29 +20,9 @@ class Piece
     "░#{symbol}░"
   end
 
+  # default boolean whether piece/postion is occupied
   def empty?
     false
-  end
-
-  def update(end_pos, grid)
-    update_position(end_pos)
-    update_en_passant(grid) if instance_of?(Pawn)
-    update_moved
-  end
-
-  def valid_location?(pos)
-    pos.all? { |coord| coord.between?(0, 7) }
-  end
-
-  def enemy?(piece)
-    return false if piece.color == :none
-
-    enemy_color = color == :white ? :black : :white
-    piece.color == enemy_color
-  end
-
-  def ally?(piece)
-    piece.color == color
   end
 
   def symbol
@@ -53,43 +33,70 @@ class Piece
     # subclass / module method
   end
 
-  def list_all_moves
-    moves.values.flatten(1).compact
-    # moves.values.flatten(1).compact.reject(&:empty?)
+  # updates a piece's position, toggles en passant (if pawn), toggles moved
+  def update(end_pos, grid)
+    update_position(end_pos)
+    update_en_passant(grid) if instance_of?(Pawn)
+    update_moved
   end
 
+  # boolean whether position is within bounds of the board
+  def valid_location?(pos)
+    pos.all? { |coord| coord.between?(0, 7) }
+  end
+
+  # boolean if a piece is an enemy
+  def enemy?(piece)
+    return false if piece.color == :none
+
+    enemy_color = color == :white ? :black : :white
+    piece.color == enemy_color
+  end
+
+  # returns array of a piece's moves
+  def list_all_moves
+    moves.values.flatten(1).compact
+  end
+
+  # returns array of a piece's captures
   def list_all_captures
     moves[:captures] + moves[:en_passant]
   end
 
   private
 
+  # toggles once a piece has been moved
   def update_moved
     @moved = true
   end
 
-  def update_position(pos)
-    @pos = pos
-    @row = pos.first
-    @col = pos.last
+  # updates position in relation to the board after a piece has been moved
+  def update_position(position)
+    @pos = position
+    @row = position.first
+    @col = position.last
   end
 
+  # resets all moves (triggers after each turn)
   def reset_moves
     @moves = Hash.new { |h, k| h[k] = [] }
   end
 
+  # adds a move or capture to the move hash
   def add_moves(new_pos, piece)
     if piece.empty?
-      moves[:moves] << new_pos
+      add_move(new_pos)
     elsif enemy?(piece)
-      moves[:captures] << new_pos
+      add_capture(new_pos)
     end
   end
 
+  # adds a move to move hash
   def add_move(move_pos)
     moves[:moves] << move_pos
   end
 
+  # adds a capture to move hash
   def add_capture(capture_pos)
     moves[:captures] << capture_pos
   end

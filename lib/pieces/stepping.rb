@@ -2,10 +2,11 @@
 
 # Move logic for king/knight
 module Stepping
+  # iterates through each piece's given move set
+  # adds move to move list if position is within bounds of the board
   def update_moves(grid, _last_move)
     reset_moves
     populate_stepping_moves(grid)
-    # moves.values.flatten(1).compact.reject(&:empty?)
   end
 
   private

@@ -327,7 +327,6 @@ describe Board do
       it 'should replace the rook with a null piece at position [0, 0]' do
         expect(board[[0, 0]]).to be_a_kind_of(NullPiece)
       end
-
     end
   end
 
@@ -411,7 +410,7 @@ describe Board do
 
     context 'when a player is in checkmate' do
       let(:wqn) { Queen.new(:white, [7, 5]) }
-      let(:wrk) { Rook.new(:white, [5, 7])}
+      let(:wrk) { Rook.new(:white, [5, 7]) }
       let(:grid) do
         [
           [emp, emp, emp, emp, emp, emp, emp, emp],
