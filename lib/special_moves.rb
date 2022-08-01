@@ -14,6 +14,21 @@ module SpecialMoves
     end
   end
 
+  # returns boolean if piece can perform en passant
+  def en_passant_move?(piece, end_pos)
+    piece.moves[:en_passant].include?(end_pos)
+  end
+
+  # returns boolean if piece can castle
+  def castling_move?(piece, end_pos)
+    piece.moves[:castling].include?(end_pos)
+  end
+
+  # returns boolean if piece can be promoted
+  def promotion_move?(piece)
+    piece.instance_of?(Pawn) && piece.promotable?
+  end
+
   # calls special move method depending on type of move
   def execute_special_move(special_move, start_pos, end_pos, input = nil)
     start_piece = self[start_pos]
@@ -22,6 +37,32 @@ module SpecialMoves
     when :castling then castling_move(end_pos)
     when :promotion then promotion_move(start_piece, input)
     end
+  end
+
+  # places a null piece in the enemy's position
+  def en_passant_move(piece, end_pos)
+    self[piece.en_passant_enemy_pos(end_pos)] = NullPiece.new
+  end
+
+  # places null piece in rook's former position, and places rook in caslting position
+  def castling_move(end_pos)
+    row, col = end_pos
+    old_rook_pos, new_rook_pos = col == 6 ? king_castle(row) : queen_castle(row)
+    rook_piece = self[old_rook_pos]
+    self[new_rook_pos] = rook_piece
+    self[old_rook_pos] = NullPiece.new
+    rook_piece.update(new_rook_pos, grid)
+  end
+
+  # replaces pawn with selected promotion piece
+  def promotion_move(piece, input = nil)
+    piece = case input
+            when 1 then Rook.new(piece.color, piece.pos)
+            when 2 then Knight.new(piece.color, piece.pos)
+            when 3 then Bishop.new(piece.color, piece.pos)
+            when 4 then Queen.new(piece.color, piece.pos)
+            end
+    self[piece.pos] = piece
   end
 
   private
@@ -41,61 +82,18 @@ module SpecialMoves
     pieces.select { |piece| piece.color == turn_color }
   end
 
-  # boolean if piece can perform en passant
-  def en_passant_move?(piece, end_pos)
-    piece.moves[:en_passant].include?(end_pos)
-  end
-
-  # boolean if piece can castle
-  def castling_move?(piece, end_pos)
-    piece.moves[:castling].include?(end_pos)
-  end
-
-  # boolean if piece can be promoted
-  def promotion_move?(piece)
-    piece.instance_of?(Pawn) && piece.promotable?
-  end
-
-
-
-  # places a null piece in the enemy's position
-  def en_passant_move(piece, end_pos)
-    self[piece.en_passant_enemy_pos(end_pos)] = NullPiece.new
-  end
-
-  # places null piece in rook's former position, and places rook in caslting position
-  def castling_move(end_pos)
-    row, col = end_pos
-    old_rook_pos, new_rook_pos = col == 6 ? king_castle(row) : queen_castle(row)
-    rook_piece = self[old_rook_pos]
-    self[new_rook_pos] = rook_piece
-    self[old_rook_pos] = NullPiece.new
-    rook_piece.update(new_rook_pos, grid)
-  end
-
-  # returns the rook positions for king side castling
+  # helper method for #castling_move: returns the rook positions for king side castling
   def king_castle(row)
     old_rook_col = 7
     new_rook_col = 5
     [[row, old_rook_col], [row, new_rook_col]]
   end
 
-  # returns the rook positions for queen side castling
+  # helper method for #castling_move: returns the rook positions for queen side castling
   def queen_castle(row)
     old_rook_col = 0
     new_rook_col = 3
     [[row, old_rook_col], [row, new_rook_col]]
-  end
-
-  # replaces pawn with selected promotion piece
-  def promotion_move(piece, input = nil)
-    piece = case input
-            when 1 then Rook.new(piece.color, piece.pos)
-            when 2 then Knight.new(piece.color, piece.pos)
-            when 3 then Bishop.new(piece.color, piece.pos)
-            when 4 then Queen.new(piece.color, piece.pos)
-            end
-    self[piece.pos] = piece
   end
 
   # tests a move to see if it causes a king to be in check

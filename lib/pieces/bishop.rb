@@ -14,6 +14,6 @@ class Bishop < Piece
   private
 
   def move_set
-    diagonal_dir
+    DIAGONAL_DIRS
   end
 end

@@ -11,7 +11,7 @@ class King < Piece
     color == :white ? '♔' : '♚'
   end
 
-  # updates moves and captures, plus castling
+  # updates @moves hash
   def update_moves(grid, _last_move)
     super
     king_side_castling(grid)

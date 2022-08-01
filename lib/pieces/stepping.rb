@@ -11,6 +11,7 @@ module Stepping
 
   private
 
+  # helper method for #update_moves
   def populate_stepping_moves(grid)
     move_set.each do |sx, sy|
       sx += row

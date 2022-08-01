@@ -314,4 +314,113 @@ describe Pawn do
       end
     end
   end
+
+  describe '#update_en_passant' do
+    context 'when the black pawn has double jumped into an en passant position for the white pawn' do
+      subject(:bpa) { described_class.new(:black, [3, 1]) }
+      let(:wpa) { instance_double(Pawn, color: :white, en_passant: false ) }
+      let(:grid) do
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, emp, nil, nil, nil, nil, nil, nil],
+          [nil, emp, nil, nil, nil, nil, nil, nil],
+          [emp, bpa, wpa, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil]
+        ]
+      end
+
+      it 'updates @en_passant for white pawn' do
+        bpa.instance_variable_set(:@moved, false)
+        allow(wpa).to receive(:instance_of?).with(Pawn).and_return(true)
+        expect(wpa).to receive(:en_passant=).and_return(true)
+        bpa.update_en_passant(grid)
+      end
+    end
+
+    context 'when the black pawn has not double jumped into an en passant position for the white pawn' do
+      subject(:bpa) { described_class.new(:black, [3, 1]) }
+      let(:wpa) { instance_double(Pawn, color: :white, en_passant: false ) }
+      let(:grid) do
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, emp, nil, nil, nil, nil, nil, nil],
+          [nil, emp, nil, nil, nil, nil, nil, nil],
+          [emp, bpa, wpa, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil]
+        ]
+      end
+
+      it 'does not update @en_passant for white pawn' do
+        bpa.instance_variable_set(:@moved, true)
+        allow(wpa).to receive(:instance_of?).with(Pawn).and_return(true)
+        expect(wpa).not_to receive(:en_passant=)
+        bpa.update_en_passant(grid)
+      end
+    end
+
+    context 'when the black pawn has a non-pawn in a en passant position' do
+      subject(:bpa) { described_class.new(:black, [3, 1]) }
+      let(:wrk) { instance_double(Rook, color: :white ) }
+      let(:grid) do
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, emp, nil, nil, nil, nil, nil, nil],
+          [nil, emp, nil, nil, nil, nil, nil, nil],
+          [emp, bpa, wrk, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil]
+        ]
+      end
+
+      it 'does not update @en_passant for the non-pawn piece' do
+        bpa.instance_variable_set(:@moved, false)
+        expect(wrk).to receive(:instance_of?).with(Pawn).and_return(false)
+        bpa.update_en_passant(grid)
+      end
+    end
+  end
+
+  describe '#en_passant_enemy_pos' do
+    context 'when the pawn is black' do
+      subject(:bpa) { described_class.new(:black, [4, 1]) }
+      let(:en_passant_end_position) { [5, 2]}
+      it 'returns the row before the end position, in relation to its forward direction' do
+        expect(bpa.en_passant_enemy_pos(en_passant_end_position)).to eq([4, 2])
+      end
+    end
+
+    context 'when the pawn is white' do
+      subject(:bpa) { described_class.new(:white, [3, 2]) }
+      let(:en_passant_end_position) { [2, 1]}
+      it 'returns the row before the end position, in relation to its forward direction' do
+        expect(bpa.en_passant_enemy_pos(en_passant_end_position)).to eq([3, 1])
+      end
+    end
+  end
+
+  describe '#promotable' do
+    let(:wpa) { described_class.new(:white, [1, 5]) }
+    let(:bpa) { described_class.new(:black, [6, 5]) }
+    let(:no_promotion) {described_class.new(:white, [6, 5] )}
+
+    it 'returns true if the white pawn is one move away from the first board row' do
+      expect(wpa).to be_promotable
+    end
+
+    it 'returns true if the black pawn is one move away from the last board row' do
+      expect(bpa).to be_promotable
+    end
+
+    it 'will not return if the pawn is in the opposite location' do
+      expect(no_promotion).not_to be_promotable
+    end
+  end
 end

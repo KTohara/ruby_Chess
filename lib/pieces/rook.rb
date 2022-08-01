@@ -14,6 +14,6 @@ class Rook < Piece
   private
 
   def move_set
-    horizontal_and_vertical_dir
+    HORIZONTAL_AND_VERTICAL_DIRS
   end
 end

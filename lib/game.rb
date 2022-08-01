@@ -87,7 +87,5 @@ Game.new.play if $PROGRAM_NAME == __FILE__
 
 # TEST:
 # game - #play, 
-# specialmoves - #execute_special_move, #special_move_type
-# king - castling into check
-# pawn - #update_en_passant, #en_passant_enemy_pos, #promotable?
 # piece - #update, #valid_location, #enemy, #list_all_moves, #list_all_captures
+# cursor - #key_input

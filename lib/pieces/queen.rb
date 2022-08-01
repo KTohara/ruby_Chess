@@ -14,6 +14,6 @@ class Queen < Piece
   private
 
   def move_set
-    horizontal_and_vertical_dir + diagonal_dir
+    HORIZONTAL_AND_VERTICAL_DIRS + DIAGONAL_DIRS
   end
 end

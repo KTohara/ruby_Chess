@@ -30,13 +30,13 @@ class Piece
   end
 
   def update_moves
-    # subclass / module method
+    # method for piece subclasses / stepping/sliding module
   end
 
   # updates a piece's position, toggles en passant (if pawn), toggles moved
   def update(end_pos, grid)
     update_position(end_pos)
-    update_en_passant(grid) if instance_of?(Pawn)
+    update_en_passant(grid) if instance_of?(Pawn) # this method order cannot be changed
     update_moved
   end
 
@@ -77,7 +77,7 @@ class Piece
     @col = position.last
   end
 
-  # resets all moves (triggers after each turn)
+  # resets all moves (called after each turn)
   def reset_moves
     @moves = Hash.new { |h, k| h[k] = [] }
   end

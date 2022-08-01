@@ -161,26 +161,5 @@ describe King do
         expect(queen_castling).to be_empty
       end
     end
-
-    context 'when castling would put the king in check' do
-      let(:bki) { described_class.new(:black, [0, 4]) }
-      let(:brk) { instance_double(Rook, color: :black, empty?: false, moved: false) }
-      let(:wrk) { instance_double(Rook, color: :white, empty?: false, moved: false) }
-      let(:grid) do
-        [
-          [emp, emp, emp, emp, bki, emp, emp, brk],
-          [nil, nil, nil, emp, emp, emp, emp, nil],
-          [nil, nil, nil, nil, nil, nil, emp, nil],
-          [nil, nil, nil, nil, nil, nil, emp, nil],
-          [nil, nil, nil, nil, nil, nil, emp, nil],
-          [nil, nil, nil, nil, nil, nil, emp, nil],
-          [nil, nil, nil, nil, nil, nil, emp, nil],
-          [emp, emp, emp, emp, emp, emp, wrk, emp]
-        ]
-      end
-
-      xit 'will not return a move' do
-      end
-    end
   end
 end

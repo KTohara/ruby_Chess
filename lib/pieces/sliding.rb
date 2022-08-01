@@ -20,14 +20,6 @@ module Sliding
 
   private
 
-  def horizontal_and_vertical_dir
-    HORIZONTAL_AND_VERTICAL_DIRS
-  end
-
-  def diagonal_dir
-    DIAGONAL_DIRS
-  end
-
   # helper method for #update_moves
   def populate_sliding_moves(new_pos, dir_pos, grid)
     dx, dy = dir_pos

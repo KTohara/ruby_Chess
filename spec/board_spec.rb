@@ -2,6 +2,9 @@
 
 require 'board'
 require 'special_moves'
+require 'messages'
+
+include Messages
 
 describe Board do
   subject(:board) { described_class.new }
@@ -62,8 +65,8 @@ describe Board do
         expect { board[valid_pos_one] }.not_to raise_error
       end
 
-      it 'should raise an error when the position not within the 8x8 grid' do
-        expect { board[invalid_pos] }.to raise_error('Invalid position')
+      it 'should raise an error when the position is not within the 8x8 grid' do
+        expect { board[invalid_pos] }.to raise_error(PositionError)
       end
 
       it 'should return the element at the position of the board' do
@@ -93,8 +96,8 @@ describe Board do
         expect(board[valid_pos_two]).to eq(rook)
       end
 
-      it 'should raise an error when the position not within the 8x8 grid' do
-        expect { board[invalid_pos] = pawn }.to raise_error('Invalid position')
+      it 'should raise an error when the position is not within the 8x8 grid' do
+        expect { board[invalid_pos] = pawn }.to raise_error(PositionError)
       end
     end
   end
@@ -142,11 +145,11 @@ describe Board do
     let(:pos_d4) { [4, 3] }
 
     it 'should raise an error if the start position is empty' do
-      expect { board.validate_start_pos(turn_color, pos_d4) }.to raise_error('Square is empty')
+      expect { board.validate_start_pos(turn_color, pos_d4) }.to raise_error(SquareError)
     end
 
     it "should raise an error if the start position is the opponent's piece" do
-      expect { board.validate_start_pos(turn_color, black_pawn_a7) }.to raise_error('You must move your own pieces')
+      expect { board.validate_start_pos(turn_color, black_pawn_a7) }.to raise_error(OpponentError)
     end
 
     it 'returns nil if no errors are raised' do
@@ -161,7 +164,7 @@ describe Board do
     let(:pos_a6) { [2, 0] }
 
     it 'should raise an error if the end position is not a valid move' do
-      expect { board.validate_end_pos(black_pawn_a7, pos_d4, turn_color) }.to raise_error('Invalid move for this piece')
+      expect { board.validate_end_pos(black_pawn_a7, pos_d4, turn_color) }.to raise_error(MoveError)
     end
 
     it 'returns nil if no errors are raised' do
@@ -193,7 +196,7 @@ describe Board do
         check_pos_h1 = [7, 7]
         board.instance_variable_set(:@grid, grid)
         bki.instance_variable_set(:@moves, { moves: [check_pos_h1] })
-        expect { board.validate_end_pos(black_king_g1, check_pos_h1, turn_color) }.to raise_error('Move puts king in check')
+        expect { board.validate_end_pos(black_king_g1, check_pos_h1, turn_color) }.to raise_error(CheckError)
       end
     end
   end
@@ -224,34 +227,11 @@ describe Board do
       expect(board.last_move).to eq(pos_a6)
     end
 
-    context 'if the starting position piece (white pawn) has an en passant move as the ending move' do
-      let(:bpa) { Pawn.new(:black, [3, 1]) }
-      let(:wpa) { Pawn.new(:white, [3, 2]) }
-      let(:emp) { [2, 1] }
-      let(:grid) do
-        [
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, emp, nil, nil, nil, nil, nil, nil],
-          [nil, bpa, wpa, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil],
-          [nil, nil, nil, nil, nil, nil, nil, nil]
-        ]
-      end
-
-      it 'should replace the black pawn position with a null piece' do
-        board.instance_variable_set(:@grid, grid)
-        wpa.instance_variable_set(:@moves, { en_passant: [[2, 1]], castling: [] })
-        board.move_piece(wpa.pos, emp)
-        expect(board[bpa.pos]).to be_a_kind_of(NullPiece)
-      end
-    end
-
     context 'if the starting position piece (white king) can king side castle' do
       let(:wki) { King.new(:white, [7, 4]) }
       let(:wrk) { Rook.new(:white, [7, 7]) }
+      let(:castling_start_pos) { [7, 6] }
+      let(:castling_end_pos) { [7, 4] }
       let(:emp) { NullPiece.new }
       let(:grid) do
         [
@@ -268,24 +248,16 @@ describe Board do
 
       before do
         board.instance_variable_set(:@grid, grid)
-        wki.instance_variable_set(:@moves, { en_passant: [], castling: [[7, 6]] })
-        board.move_piece(wki.pos, [7, 6])
+        wki.instance_variable_set(:@moves, { castling: [castling_start_pos] })
+        board.move_piece(wki.pos, castling_start_pos)
       end
 
       it 'should place the white king at position [7, 6]' do
-        expect(wki.pos).to eq([7, 6])
-      end
-
-      it 'should place the right white rook at position [7, 5]' do
-        expect(wrk.pos).to eq([7, 5])
+        expect(wki.pos).to eq(castling_start_pos)
       end
 
       it 'should replace the king with a null piece at position [7, 4]' do
-        expect(board[[7, 4]]).to be_a_kind_of(NullPiece)
-      end
-
-      it 'should replace the rook with a null piece at position [7, 7]' do
-        expect(board[[7, 7]]).to be_a_kind_of(NullPiece)
+        expect(board[castling_end_pos]).to be_a_kind_of(NullPiece)
       end
     end
 
@@ -308,7 +280,7 @@ describe Board do
 
       before do
         board.instance_variable_set(:@grid, grid)
-        bki.instance_variable_set(:@moves, { en_passant: [], castling: [[0, 2]] })
+        bki.instance_variable_set(:@moves, { castling: [[0, 2]] })
         board.move_piece(bki.pos, [0, 2])
       end
 
@@ -316,17 +288,202 @@ describe Board do
         expect(bki.pos).to eq([0, 2])
       end
 
-      it 'should place the left black rook at position [0, 3]' do
-        expect(brk.pos).to eq([0, 3])
-      end
-
       it 'should replace the king with a null piece at position [0, 4]' do
         expect(board[[0, 4]]).to be_a_kind_of(NullPiece)
       end
+    end
+  end
+
+  describe '#en_passant_move' do
+    context 'if the starting position piece (white pawn) has an en passant move as the ending move' do
+      let(:bpa) { Pawn.new(:black, [3, 1]) }
+      let(:wpa) { Pawn.new(:white, [3, 2]) }
+      let(:emp) { [2, 1] }
+      let(:grid) do
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, emp, nil, nil, nil, nil, nil, nil],
+          [nil, bpa, wpa, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil]
+        ]
+      end
+
+      it 'should replace the black pawn position with a null piece' do
+        board.instance_variable_set(:@grid, grid)
+        wpa.instance_variable_set(:@moves, { en_passant: [[2, 1]] })
+        board.en_passant_move(wpa, emp)
+        expect(board[bpa.pos]).to be_a_kind_of(NullPiece)
+      end
+    end
+  end
+
+  describe '#castling_move' do
+    context 'if the starting position piece (white king) can king side castle' do
+      let(:wki) { King.new(:white, [7, 4]) }
+      let(:wrk) { Rook.new(:white, [7, 7]) }
+      let(:emp) { NullPiece.new }
+      let(:castling_pos) { [7, 6] }
+      let(:grid) do
+        [
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, wki, emp, emp, wrk]
+        ]
+      end
+
+      before do
+        board.instance_variable_set(:@grid, grid)
+        wki.instance_variable_set(:@moves, { castling: [castling_pos] })
+      end
+
+      it 'should place the right white rook at position [7, 5]' do
+        board.castling_move(castling_pos)
+        expect(wrk.pos).to eq([7, 5])
+      end
+
+      it 'should replace the rook with a null piece at position [7, 7]' do
+        board.castling_move(castling_pos)
+        expect(board[[7, 7]]).to be_a_kind_of(NullPiece)
+      end
+
+      it 'should call #update on the rook' do
+        expect(wrk).to receive(:update).once
+        board.castling_move(castling_pos)
+      end
+    end
+
+    context 'if the starting position piece (black king) can queen side castle' do
+      let(:bki) { King.new(:black, [0, 4]) }
+      let(:brk) { Rook.new(:black, [0, 0]) }
+      let(:emp) { NullPiece.new }
+      let(:castling_pos) { [0, 2] }
+      let(:grid) do
+        [
+          [brk, emp, emp, emp, bki, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil],
+          [nil, nil, nil, nil, nil, nil, nil, nil]
+        ]
+      end
+
+      before do
+        board.instance_variable_set(:@grid, grid)
+        bki.instance_variable_set(:@moves, { castling: [castling_pos] })
+      end
+
+      it 'should place the left black rook at position [0, 3]' do
+        board.castling_move(castling_pos)
+        expect(brk.pos).to eq([0, 3])
+      end
 
       it 'should replace the rook with a null piece at position [0, 0]' do
+        board.castling_move(castling_pos)
         expect(board[[0, 0]]).to be_a_kind_of(NullPiece)
       end
+
+      it 'should call #update on the rook' do
+        expect(brk).to receive(:update).once
+        board.castling_move(castling_pos)
+      end
+    end
+  end
+
+  describe '#promotion_move' do
+    let(:pawn) { Pawn.new(:black, [7, 3]) }
+    let(:pawn_position) { board[pawn.pos] }
+    let(:pawn_color) { board[pawn.pos].color }
+
+    it 'should replace/promote the pawn' do
+      board.promotion_move(pawn, 1)
+      expect(pawn_position).not_to eq(pawn)
+    end
+
+    it 'when input is 1, replaces the piece with a Rook' do
+      board.promotion_move(pawn, 1)
+      expect(pawn_position).to be_a_kind_of(Rook)
+    end
+
+    it 'when input is 2, replaces the piece with a Knight' do
+      board.promotion_move(pawn, 2)
+      expect(pawn_position).to be_a_kind_of(Knight)
+    end
+
+    it 'when input is 3, replaces the piece with a Bishop' do
+      board.promotion_move(pawn, 3)
+      expect(pawn_position).to be_a_kind_of(Bishop)
+    end
+
+    it 'when input is 4, replaces the piece with a Queen' do
+      board.promotion_move(pawn, 4)
+      expect(pawn_position).to be_a_kind_of(Queen)
+    end
+
+    it 'does not change the color of piece' do
+      board.promotion_move(pawn, 4)
+      expect(pawn_color).to eq(:black)
+    end
+  end
+
+  describe 'en_passant_move?' do
+    let(:pawn) { instance_double(Pawn) }
+    let(:valid_en_passant_move) { [2, 3] }
+    let(:invalid_en_passant_move) { [0, 0] }
+
+    before { allow(pawn).to receive(:moves).and_return({ en_passant: [valid_en_passant_move] }) }
+
+    it 'returns true if the pawn has an en passant move' do
+      expect(board).to be_en_passant_move(pawn, valid_en_passant_move)
+    end
+
+    it 'returns false if the pawn does not have an en passant move' do
+      expect(board).not_to be_en_passant_move(pawn, invalid_en_passant_move)
+    end
+  end
+
+  describe 'castling_move?' do
+    let(:king) { instance_double(King) }
+    let(:valid_castling_move) { [7, 6] }
+    let(:invalid_castling_move) { [4, 4] }
+
+    before { allow(king).to receive(:moves).and_return({ castling: [valid_castling_move] }) }
+
+    it 'returns true if the king has a castling move' do
+      expect(board).to be_castling_move(king, valid_castling_move)
+    end
+
+    it 'returns false if the king does not have a castling move' do
+      expect(board).not_to be_castling_move(king, invalid_castling_move)
+    end
+  end
+
+  describe 'promotion_move?' do
+    let(:pawn) { instance_double(Pawn, color: :white) }
+    let(:valid_promotion_move) { [0, 7] }
+    let(:invalid_promotion_move) { [4, 4] }
+
+    it 'returns true if the pawn has a promotion move' do
+      allow(pawn).to receive(:instance_of?).with(Pawn).and_return(true)
+      allow(pawn).to receive(:promotable?).and_return(true)
+      expect(board).to be_promotion_move(pawn)
+    end
+
+    it 'returns false if the pawn does not have a promotion move' do
+      allow(pawn).to receive(:instance_of?).with(Pawn).and_return(true)
+      allow(pawn).to receive(:promotable?).and_return(false)
+      expect(board).not_to be_promotion_move(pawn)
     end
   end
 
