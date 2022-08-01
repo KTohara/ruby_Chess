@@ -132,8 +132,8 @@ module Messages
       piece.update_moves(board.grid, board.last_move) # needed for mapping moves
       add_msg_choose_end
       render(board.grid, piece)
-      p piece.moves # use to debug
-      p board[start_pos] # use to debug
+      # p piece.moves # use to debug
+      # p board[start_pos] # use to debug
       end_pos = cursor.key_input
     end
     reset_notifications

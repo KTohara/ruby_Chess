@@ -26,6 +26,7 @@ class Game
     @messages = {}
   end
 
+  # main game loop
   def play
     until board.checkmate?(turn_color)
       begin
@@ -43,12 +44,16 @@ class Game
 
   private
 
+  # player move turn
+  # prompts/validates a move, handles special piece moves if any, moves the piece
   def player_turn
     start_pos, end_pos = handle_move_validation
     handle_special_moves(start_pos, end_pos)
     board.move_piece(start_pos, end_pos)
   end
 
+  # *prompts in module Messages
+  # prompts for start and end position, validates both, returns position
   def handle_move_validation
     start_pos = prompt_start_pos(turn_color)
     board.validate_start_pos(turn_color, start_pos)
@@ -57,6 +62,8 @@ class Game
     [start_pos, end_pos]
   end
 
+  # *msg in module Messages
+  # determines special move type, outputs a message depending on move, executes the move
   def handle_special_moves(start_pos, end_pos)
     special_move = board.special_move_type(start_pos, end_pos)
     input = special_move_msg(special_move, start_pos)
@@ -67,6 +74,7 @@ class Game
     @turn_color = turn_color == :white ? :black : :white
   end
 
+  # if the board is in check, adds a 'board in check' message to @notification or resets notifications
   def board_in_check
     board.check?(turn_color) ? add_check_notification : reset_notifications
   end
@@ -84,8 +92,7 @@ Game.new.play if $PROGRAM_NAME == __FILE__
 # cursor - handle saves
 # cursor - handle draw/resign
 # game/board - stalemate
+# game - replay
 
 # TEST:
-# game - #play, 
-# piece - #update, #valid_location, #enemy, #list_all_moves, #list_all_captures
-# cursor - #key_input
+# game - #play

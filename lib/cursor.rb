@@ -35,7 +35,7 @@ class Cursor
   end
 
   # converts the key press into a designated method
-  def key_input
+  def key_input(read_char = nil)
     key = KEYMAP[read_char]
     handle_key(key)
   end
@@ -77,9 +77,9 @@ class Cursor
     when :ctrl_c
       exit(0)
     when :s
-      save
+      :save
     when :d
-      resign
+      :resign
     when :up, :down, :left, :right
       pos_diff = MOVES[key]
       update_pos(pos_diff)

@@ -4,7 +4,7 @@ require 'board'
 require 'special_moves'
 require 'messages'
 
-include Messages
+# include Messages
 
 describe Board do
   subject(:board) { described_class.new }
@@ -66,7 +66,7 @@ describe Board do
       end
 
       it 'should raise an error when the position is not within the 8x8 grid' do
-        expect { board[invalid_pos] }.to raise_error(PositionError)
+        expect { board[invalid_pos] }.to raise_error(Messages::PositionError.new.message)
       end
 
       it 'should return the element at the position of the board' do
@@ -97,7 +97,7 @@ describe Board do
       end
 
       it 'should raise an error when the position is not within the 8x8 grid' do
-        expect { board[invalid_pos] = pawn }.to raise_error(PositionError)
+        expect { board[invalid_pos] = pawn }.to raise_error(Messages::PositionError.new.message)
       end
     end
   end
@@ -145,11 +145,11 @@ describe Board do
     let(:pos_d4) { [4, 3] }
 
     it 'should raise an error if the start position is empty' do
-      expect { board.validate_start_pos(turn_color, pos_d4) }.to raise_error(SquareError)
+      expect { board.validate_start_pos(turn_color, pos_d4) }.to raise_error(Messages::SquareError.new.message)
     end
 
     it "should raise an error if the start position is the opponent's piece" do
-      expect { board.validate_start_pos(turn_color, black_pawn_a7) }.to raise_error(OpponentError)
+      expect { board.validate_start_pos(turn_color, black_pawn_a7) }.to raise_error(Messages::OpponentError.new.message)
     end
 
     it 'returns nil if no errors are raised' do
@@ -164,7 +164,7 @@ describe Board do
     let(:pos_a6) { [2, 0] }
 
     it 'should raise an error if the end position is not a valid move' do
-      expect { board.validate_end_pos(black_pawn_a7, pos_d4, turn_color) }.to raise_error(MoveError)
+      expect { board.validate_end_pos(black_pawn_a7, pos_d4, turn_color) }.to raise_error(Messages::MoveError.new.message)
     end
 
     it 'returns nil if no errors are raised' do
@@ -196,7 +196,7 @@ describe Board do
         check_pos_h1 = [7, 7]
         board.instance_variable_set(:@grid, grid)
         bki.instance_variable_set(:@moves, { moves: [check_pos_h1] })
-        expect { board.validate_end_pos(black_king_g1, check_pos_h1, turn_color) }.to raise_error(CheckError)
+        expect { board.validate_end_pos(black_king_g1, check_pos_h1, turn_color) }.to raise_error(Messages::CheckError.new.message)
       end
     end
   end

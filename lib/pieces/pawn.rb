@@ -55,6 +55,7 @@ class Pawn < Piece
   # adds en passant capture to @moves if within bounds of grid and is a valid en passant
   def en_passant_capture(grid, last_move)
     return unless [3, 4].include?(row)
+
     ADJACENT_DIRS.each do |dx, dy|
       dx += row
       dy += col

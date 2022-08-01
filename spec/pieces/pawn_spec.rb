@@ -318,7 +318,7 @@ describe Pawn do
   describe '#update_en_passant' do
     context 'when the black pawn has double jumped into an en passant position for the white pawn' do
       subject(:bpa) { described_class.new(:black, [3, 1]) }
-      let(:wpa) { instance_double(Pawn, color: :white, en_passant: false ) }
+      let(:wpa) { instance_double(Pawn, color: :white, en_passant: false) }
       let(:grid) do
         [
           [nil, nil, nil, nil, nil, nil, nil, nil],
@@ -342,7 +342,7 @@ describe Pawn do
 
     context 'when the black pawn has not double jumped into an en passant position for the white pawn' do
       subject(:bpa) { described_class.new(:black, [3, 1]) }
-      let(:wpa) { instance_double(Pawn, color: :white, en_passant: false ) }
+      let(:wpa) { instance_double(Pawn, color: :white, en_passant: false) }
       let(:grid) do
         [
           [nil, nil, nil, nil, nil, nil, nil, nil],
@@ -366,7 +366,7 @@ describe Pawn do
 
     context 'when the black pawn has a non-pawn in a en passant position' do
       subject(:bpa) { described_class.new(:black, [3, 1]) }
-      let(:wrk) { instance_double(Rook, color: :white ) }
+      let(:wrk) { instance_double(Rook, color: :white) }
       let(:grid) do
         [
           [nil, nil, nil, nil, nil, nil, nil, nil],
@@ -391,7 +391,7 @@ describe Pawn do
   describe '#en_passant_enemy_pos' do
     context 'when the pawn is black' do
       subject(:bpa) { described_class.new(:black, [4, 1]) }
-      let(:en_passant_end_position) { [5, 2]}
+      let(:en_passant_end_position) { [5, 2] }
       it 'returns the row before the end position, in relation to its forward direction' do
         expect(bpa.en_passant_enemy_pos(en_passant_end_position)).to eq([4, 2])
       end
@@ -399,7 +399,7 @@ describe Pawn do
 
     context 'when the pawn is white' do
       subject(:bpa) { described_class.new(:white, [3, 2]) }
-      let(:en_passant_end_position) { [2, 1]}
+      let(:en_passant_end_position) { [2, 1] }
       it 'returns the row before the end position, in relation to its forward direction' do
         expect(bpa.en_passant_enemy_pos(en_passant_end_position)).to eq([3, 1])
       end
@@ -409,7 +409,7 @@ describe Pawn do
   describe '#promotable' do
     let(:wpa) { described_class.new(:white, [1, 5]) }
     let(:bpa) { described_class.new(:black, [6, 5]) }
-    let(:no_promotion) {described_class.new(:white, [6, 5] )}
+    let(:no_promotion) { described_class.new(:white, [6, 5]) }
 
     it 'returns true if the white pawn is one move away from the first board row' do
       expect(wpa).to be_promotable
