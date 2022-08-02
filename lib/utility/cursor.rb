@@ -35,8 +35,9 @@ class Cursor
   end
 
   # converts the key press into a designated method
-  def key_input(read_char = nil)
-    key = KEYMAP[read_char]
+  def key_input(input = nil)
+    input ||= read_char
+    key = KEYMAP[input]
     handle_key(key)
   end
 

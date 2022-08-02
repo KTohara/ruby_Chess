@@ -2,9 +2,10 @@
 
 require_relative 'pieces'
 require_relative 'special_moves'
-require_relative 'messages'
+require_relative 'utility/messages'
 
 require 'byebug'
+
 # Board basic logic
 class Board
   include SpecialMoves

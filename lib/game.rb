@@ -2,15 +2,14 @@
 
 require_relative 'board'
 require_relative 'player'
-require_relative 'display'
-require_relative 'cursor'
-require_relative 'messages'
+require_relative 'utilities'
 require 'byebug'
 
 # Game loop
 class Game
   include Messages
   include Display
+  include SaveLoad
 
   attr_reader :board, :cursor, :turn_color, :display, :notifications, :messages
 
@@ -47,19 +46,35 @@ class Game
   # player move turn
   # prompts/validates a move, handles special piece moves if any, moves the piece
   def player_turn
-    start_pos, end_pos = handle_move_validation
+    start_pos, end_pos = handle_input
     handle_special_moves(start_pos, end_pos)
     board.move_piece(start_pos, end_pos)
   end
 
   # *prompts in module Messages
   # prompts for start and end position, validates both, returns position
-  def handle_move_validation
-    start_pos = prompt_start_pos(turn_color)
+  def handle_input
+    start_pos = prompt_start_pos
+    check_special_inputs(start_pos)
     board.validate_start_pos(turn_color, start_pos)
-    end_pos = prompt_end_pos(turn_color, start_pos)
+    end_pos = prompt_end_pos(start_pos)
+    check_special_inputs(end_pos)
     board.validate_end_pos(start_pos, end_pos, turn_color)
     [start_pos, end_pos]
+  end
+
+  def check_special_inputs(input)
+    save_game if input == :save
+    resign_game if input == :resign
+  end
+
+  def resign_game(input = nil)
+    reset_messages
+    reset_notifications
+    add_msg_resign_game
+    render(board.grid)
+    input ||= prompt_yes_no
+    input == 'y' ? display_thanks_then_exit : handle_input
   end
 
   # *msg in module Messages
@@ -81,18 +96,21 @@ class Game
 
   def game_result
     reset_notifications
+    add_checkmate_notification
     render(board.grid)
-    puts 'Checkmate!'
+  end
+
+  def replay_game(input = nil)
+    add_msg_replay
+    input ||= prompt_yes_no
+    input == 'y' ? Game.new.play : display_thanks_then_exit
   end
 end
 
-Game.new.play if $PROGRAM_NAME == __FILE__
-
 # TO DO:
-# cursor - handle saves
-# cursor - handle draw/resign
 # game/board - stalemate
-# game - replay
+# computerplayer
+# graveyard?
 
 # TEST:
-# game - #play
+# game

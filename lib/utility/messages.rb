@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
+
 # Handles all messages, prompts, notifications and errors
 module Messages
   # error message when user selects an empty square on the board
@@ -47,6 +49,34 @@ module Messages
     messages.each_value { |message| puts message }
   end
 
+  def display_intro_msg
+    system('clear')
+    puts <<~INTRO
+      Let's play...
+
+       ▄████▄   ▄█   █▄      ▄█████▄    ▄████▄   ▄████▄ ▀██▄  
+       ██▀  ██ ███   ███    ███  ▄█▀   ███  ███ ███  ███  ███▄ 
+      ██   █▀  ▀██   ▀██    ██    ▀   ██    █▀ ██    █▀  ▄█████
+      ██    ▄▄▄███▄  ██▀   ▄██▄▄▄▄▄▄  ██▄      ██▄     ▀▀████▀ 
+      ██      ▀███▀▀███▄ ▀▀▀███▀▀▀   ▀██████▄ ▀███████▄  ▀███  
+      ██    █▄ ██▀   ▀██▀▄  ██     ▄    ▄  ▀██    ▄  ▀██  ▄█▀  
+       ██▄  █▀ ██    ███  ▀ ███   ▀█  ▄█   ██▀  ▄█   ██▀ ▄▄▄  
+       ▀████▀  ▄█▄   █▀      ▀█████▀ ▄██████▀  ▄██████▀ ▀█▀   
+      
+      How to play:
+      ARROW KEYS to move
+      ENTER or SPACE to confirm selection
+      S to save
+      R to resign
+
+      INTRO
+  end
+
+  def display_thanks_then_exit
+    puts 'Thank you for playing!'
+    exit(0)
+  end
+
   # resets all notifications
   def reset_notifications
     notifications.each_key { |key| notifications.delete(key) }
@@ -59,7 +89,11 @@ module Messages
 
   # adds check notification
   def add_check_notification
-    notifications[:check] = 'King is in check!'
+    notifications[:check] = "Player: #{turn_color.capitalize}, King is in check!"
+  end
+
+  def add_checkmate_notification
+    notifications[:checkmate] = "Player: #{turn_color.capitalize}, Checkmate!"
   end
 
   # adds pawn promotion message
@@ -77,44 +111,39 @@ module Messages
 
   # adds pawn en passant message
   def add_msg_en_passant(piece)
-    messages[:en_passant] = "En passant was made by #{piece.color} #{piece.class}"
+    messages[:en_passant] = "En passant was made by #{piece.color} #{piece.class}!"
   end
 
   # adds king castling message
   def add_msg_castling(piece)
-    messages[:castling] = "Castling move was made by #{piece.color} #{piece.class}"
+    messages[:castling] = "Castling move was made by #{piece.color} #{piece.class}!"
   end
 
   # adds start position messsage
   def add_msg_choose_start
-    messages[:choose_start] = "#{turn_color.to_s.capitalize}, choose a piece to move"
+    messages[:choose_start] = "Player: #{turn_color.to_s.capitalize}, choose a piece to move!"
   end
 
   # adds end position message
   def add_msg_choose_end
-    messages[:choose_end] = "#{turn_color.to_s.capitalize}, move the piece to a position"
+    messages[:choose_end] = "Player: #{turn_color.to_s.capitalize}, move your piece!"
   end
 
-  # prompts user for promotion option (rook, knight, bishop, queen)
-  def prompt_promotion
-    render(board.grid)
+  def add_msg_resign_game
+    messages[:resign] = "\nResign game?\n\n[Y]es\n[N]o"
+  end
+
+  def add_msg_replay
+    messages[:replay] = "\nWould you like to play another game?\n\n[Y]es\n[N]o"
+  end
+
+  def prompt_game_type
+    puts "[1] Play new game\n[2] Load game\n"
     input = gets.chomp.to_i
-    input_options = [1, 2, 3, 4]
-    validate_input(input, input_options)
-  end
-
-  # loops until input is a part of the input options then returns input
-  def validate_input(input, input_options)
-    until input_options.include?(input)
-      render(board.grid)
-      input = gets.chomp.to_i
-    end
-    reset_messages
-    input
   end
 
   # prompts user for a starting position, updates key input until enter/space key is pressed
-  def prompt_start_pos(_turn_color, start_pos = nil)
+  def prompt_start_pos(start_pos = nil)
     until start_pos
       add_msg_choose_start
       render(board.grid)
@@ -126,7 +155,7 @@ module Messages
   end
 
   # prompts user for a ending position, updates key input until enter/space key is pressed
-  def prompt_end_pos(_turn_color, start_pos, end_pos = nil)
+  def prompt_end_pos(start_pos, end_pos = nil)
     until end_pos
       piece = board[start_pos]
       piece.update_moves(board.grid, board.last_move) # needed for mapping moves
@@ -139,6 +168,14 @@ module Messages
     reset_notifications
     reset_messages
     end_pos
+  end
+
+  # prompts user for promotion option (rook, knight, bishop, queen)
+  def prompt_promotion
+    render(board.grid)
+    input = gets.chomp.to_i
+    input_options = [1, 2, 3, 4]
+    validate_input(input, input_options)
   end
 
   # adds messages to message hash, and returns input if move type is a pawn promotion
@@ -157,4 +194,24 @@ module Messages
     end
     input
   end
+
+  # prompts for input, loops until 'y' or 'n'
+  def prompt_yes_no
+    input = gets.chomp.downcase
+    input_options = %w[y n]
+    validate_input(input, input_options)
+  end
+
+  # loops until input is a part of the input options then returns input
+  def validate_input(input, input_options)
+    until input_options.include?(input)
+      render(board.grid)
+      input = gets.chomp.to_i if input_options.all?(Integer)
+      input = gets.chomp.downcase if input_options.all?(String)
+    end
+    reset_messages
+    input
+  end
 end
+
+# rubocop:enable Metrics/ModuleLength

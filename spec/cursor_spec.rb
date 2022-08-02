@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cursor'
+require 'utility/cursor'
 
 describe Cursor do
   subject(:cursor) { described_class.new([4, 4]) }

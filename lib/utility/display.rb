@@ -13,8 +13,8 @@ module Display
   def render(grid, selected = nil)
     system('clear')
     puts display_board(grid, selected)
-    display_notifications
     display_messages
+    display_notifications
   end
 
   # maps the board with column letters and row numbers

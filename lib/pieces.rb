@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# file import collection for Board
+# file imports for board.rb
 require_relative 'pieces/piece'
 require_relative 'pieces/pawn'
 require_relative 'pieces/rook'

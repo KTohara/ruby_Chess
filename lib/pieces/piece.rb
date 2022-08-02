@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../colors'
+require_relative '../utility/colors'
 
 # Chess piece superclass
 class Piece
