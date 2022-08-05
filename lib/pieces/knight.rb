@@ -8,7 +8,7 @@ class Knight < Piece
   include Stepping
 
   def symbol
-    color == :white ? '♘' : '♞'
+    '♞'
   end
 
   private

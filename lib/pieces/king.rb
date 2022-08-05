@@ -8,7 +8,7 @@ class King < Piece
   include Stepping
 
   def symbol
-    color == :white ? '♔' : '♚'
+    '♚'
   end
 
   # updates @moves hash

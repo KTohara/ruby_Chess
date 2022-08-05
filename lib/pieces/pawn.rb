@@ -14,7 +14,7 @@ class Pawn < Piece
   end
 
   def symbol
-    color == :white ? '♙' : '♟'
+    '♟'
   end
 
   # updates @moves hash
