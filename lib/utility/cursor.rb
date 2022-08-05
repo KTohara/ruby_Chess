@@ -4,8 +4,12 @@ require 'io/console'
 
 KEYMAP = {
   ' ' => :space,
-  's' => :s,
-  'd' => :d,
+  # 'w' => :up,
+  # 's' => :down,
+  # 'a' => :left,
+  # 'd' => :right,
+  'b' => :b,
+  'r' => :r,
   "\t" => :tab,
   "\r" => :return,
   "\n" => :newline,
@@ -77,9 +81,9 @@ class Cursor
       cursor_pos
     when :ctrl_c
       exit(0)
-    when :s
+    when :b
       :save
-    when :d
+    when :r
       :resign
     when :up, :down, :left, :right
       pos_diff = MOVES[key]

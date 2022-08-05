@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'pieces/piece'
 require 'pieces/knight'
-require 'pieces/nullpiece'
 require 'board'
 
 describe Knight do

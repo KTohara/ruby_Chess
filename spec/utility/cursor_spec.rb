@@ -11,8 +11,8 @@ describe Cursor do
   let(:ctrl_c) { "\u0003" }
   let(:space) { ' ' }
   let(:enter) { "\r" }
-  let(:s_key) { 's' }
-  let(:d_key) { 'd' }
+  let(:b_key) { 'b' }
+  let(:r_key) { 'r' }
 
   describe '#key_input' do
     context 'when the key press is a direction' do
@@ -72,15 +72,15 @@ describe Cursor do
       end
     end
 
-    context "when 's' is pressed" do
+    context "when 'b' is pressed" do
       it 'should return :save' do
-        expect(cursor.key_input(s_key)).to eq(:save)
+        expect(cursor.key_input(b_key)).to eq(:save)
       end
     end
 
-    context "when 'd' is pressed" do
+    context "when 'r' is pressed" do
       it 'should return :resign' do
-        expect(cursor.key_input(d_key)).to eq(:resign)
+        expect(cursor.key_input(r_key)).to eq(:resign)
       end
     end
   end

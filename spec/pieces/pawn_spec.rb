@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'pieces/pawn'
-require 'pieces/piece'
 require 'board'
 
 describe Pawn do

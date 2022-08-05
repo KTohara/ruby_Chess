@@ -7,14 +7,20 @@ module Display
   include Colors
 
   COLUMN_LETTERS = ('a'..'h').to_a.freeze
+  VERT = "\u2502" # │
 
   # main render method for board and notifications
   # if given, selected gets mapped as the cursor
   def render(grid, selected = nil)
     system('clear')
+    puts display_input_banner.blue
     puts display_board(grid, selected)
     display_messages
     display_notifications
+  end
+
+  def display_input_banner
+    " SAVE: S #{VERT} RESIGN: D #{VERT} SELECT: RETURN / SPACE\n"
   end
 
   # maps the board with column letters and row numbers

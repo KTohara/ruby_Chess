@@ -4,8 +4,6 @@ require_relative 'pieces'
 require_relative 'special_moves'
 require_relative 'utility/messages'
 
-require 'byebug'
-
 # Board basic logic
 class Board
   include SpecialMoves
@@ -79,14 +77,24 @@ class Board
     end
   end
 
-  # checkmate returns true if player has no pieces with moves that do not cause a check
+  # calls stalemate only if player is in check
   def checkmate?(turn_color)
     return false unless check?(turn_color)
 
-    ally_pieces(turn_color).none? do |piece|
+    stalemate?(turn_color)
+  end
+
+  # returns true if all of a player's pieces cause their own king to be in check
+  def stalemate?(turn_color)
+    ally_pieces(turn_color).all? do |piece|
       moves = piece.list_all_moves
-      moves.any? { |move| !move_causes_check?(turn_color, piece.pos, move) }
+      moves.all? { |move| move_causes_check?(turn_color, piece.pos, move) }
     end
+  end
+
+  # needs tests
+  def insufficient_material?
+    only_kings_bishops? || only_kings_knights? || only_kings?
   end
 
   private
@@ -117,5 +125,41 @@ class Board
       pos = row, col
       self[pos] = Pawn.new(color, pos)
     end
+  end
+
+  # finds the position of the given color's king
+  def king_pos(turn_color)
+    ally_pieces(turn_color).find { |piece| piece.instance_of?(King) }.pos
+  end
+
+  # updates moves for all pieces on the board
+  def update_all_moves
+    pieces.each { |piece| piece.update_moves(grid, last_move) }
+  end
+
+  # tests a move to see if it causes a king to be in check
+  def move_causes_check?(turn_color, start_pos, end_pos)
+    undo_piece = self[end_pos]
+    test_move(start_pos, end_pos)
+    check_status = check?(turn_color)
+    undo_move(end_pos, start_pos, undo_piece)
+    update_all_moves
+    check_status
+  end
+
+  # moves a piece, and places a null piece in it's place
+  def test_move(start_pos, end_pos)
+    piece = self[start_pos]
+    self[end_pos] = piece
+    piece.pos = end_pos
+    self[start_pos] = NullPiece.new
+  end
+
+  # moves the piece back to it's starting position, and places the original piece back in it's place
+  def undo_move(end_pos, start_pos, undo_piece)
+    piece = self[end_pos]
+    self[start_pos] = piece
+    piece.pos = start_pos
+    self[end_pos] = undo_piece
   end
 end

@@ -39,7 +39,7 @@ module SpecialMoves
     end
   end
 
-  # places a null piece in the enemy's position
+  # places a null piece at the enemy pawn's position
   def en_passant_move(piece, end_pos)
     self[piece.en_passant_enemy_pos(end_pos)] = NullPiece.new
   end
@@ -96,39 +96,24 @@ module SpecialMoves
     [[row, old_rook_col], [row, new_rook_col]]
   end
 
-  # tests a move to see if it causes a king to be in check
-  def move_causes_check?(turn_color, start_pos, end_pos)
-    undo_piece = self[end_pos]
-    test_move(start_pos, end_pos)
-    check_status = check?(turn_color)
-    undo_move(end_pos, start_pos, undo_piece)
-    update_all_moves
-    check_status
+  # INSUFFICIENT MATERIAL HELPERS NEED REFACTORING
+  # returns true if only kings remain
+  def only_kings?
+    pieces.all? { |piece| piece.instance_of?(King) }
   end
 
-  # moves a piece, and places a null piece in it's place
-  def test_move(start_pos, end_pos)
-    piece = self[start_pos]
-    self[end_pos] = piece
-    piece.pos = end_pos
-    self[start_pos] = NullPiece.new
+  # returns true if all pieces are kings and bishops, and if bishops are of the same square color
+  def only_kings_bishops?
+    same_color_bishops? && pieces.all? { |piece| piece.instance_of?(King) || piece.instance_of?(Bishop) }
   end
 
-  # moves the piece back to it's starting position, and places the original piece back in it's place
-  def undo_move(end_pos, start_pos, undo_piece)
-    piece = self[end_pos]
-    self[start_pos] = piece
-    piece.pos = start_pos
-    self[end_pos] = undo_piece
+  def only_kings_knights?
+    pieces.all? { |piece| piece.instance_of?(King) || piece.instance_of?(Knight) } &&
+      pieces.one? { |piece| piece.instance_of?(Knight) }
   end
 
-  # finds the position of the given color's king
-  def king_pos(turn_color)
-    ally_pieces(turn_color).find { |piece| piece.instance_of?(King) }.pos
-  end
-
-  # updates moves for all pieces on the board
-  def update_all_moves
-    pieces.each { |piece| piece.update_moves(grid, last_move) }
+  def same_color_bishops?
+    bishops = pieces.select { |piece| piece.instance_of?(Bishop) }
+    bishops.all? { |bishop| bishop.pos.sum.even? } || bishops.all? { |bishop| bishop.pos.sum.odd? }
   end
 end

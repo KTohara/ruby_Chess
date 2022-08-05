@@ -2,39 +2,17 @@ AllCops:
   Exclude:
     - "spec/spec_helper.rb"
   NewCops: enable
+Metrics:
+  Exclude:
+    - "lib/board.rb"
+    - "lib/utility/*"
+    - "spec/**/*"
 Metrics/BlockLength:
   Exclude:
-    - "spec/*"
-    - "spec/pieces/*"
+    - "spec/**/*"
 Layout/LineLength:
   Exclude:
-    - "spec/*"
-    - "spec/pieces/*"
-Style/WordArray:
+    - "spec/**/*"
+Lint/AmbiguousBlockAssociation:
   Exclude:
-    - "spec/*"
-    - "spec/pieces/*"
-Style/BlockDelimiters:
-  Exclude:
-    - "spec/*"
-    - "spec/pieces/*"
-Layout/MultilineBlockLayout:
-  Exclude:
-    - "spec/*"
-    - "spec/pieces/*"
-Layout/BlockAlignment:
-  Exclude:
-    - "spec/*"
-    - "spec/pieces/*"
-Layout/BlockEndNewline:
-  Exclude:
-    - "spec/*"
-    - "spec/pieces/*"
-Metrics/AbcSize:
-  Exclude:
-    - "lib/*"
-    - "spec/pieces/*"
-Metrics/MethodLength:
-  Exclude:
-    - "lib/*"
-    - "spec/pieces/*"
+    - "spec/**/*"

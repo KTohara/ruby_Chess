@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'pieces/rook'
-require 'pieces/piece'
 require 'board'
 
 describe Rook do

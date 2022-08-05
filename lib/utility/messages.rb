@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/ModuleLength
+require_relative 'colors'
 
-# Handles all messages, prompts, notifications and errors
+# Handles all messages, prompts, notifications and exceptions
 module Messages
+  include Colors
+
   # error message when user selects an empty square on the board
   class SquareError < StandardError
     def message
@@ -41,7 +43,7 @@ module Messages
 
   # displays all notifications
   def display_notifications
-    notifications.each_value { |message| puts message }
+    notifications.each_value { |message| puts "\n#{message.light_red}" }
   end
 
   # displays all messages
@@ -54,26 +56,27 @@ module Messages
     puts <<~INTRO
       Let's play...
 
-       ▄████▄   ▄█   █▄      ▄█████▄    ▄████▄   ▄████▄ ▀██▄  
-       ██▀  ██ ███   ███    ███  ▄█▀   ███  ███ ███  ███  ███▄ 
-      ██   █▀  ▀██   ▀██    ██    ▀   ██    █▀ ██    █▀  ▄█████
-      ██    ▄▄▄███▄  ██▀   ▄██▄▄▄▄▄▄  ██▄      ██▄     ▀▀████▀ 
-      ██      ▀███▀▀███▄ ▀▀▀███▀▀▀   ▀██████▄ ▀███████▄  ▀███  
-      ██    █▄ ██▀   ▀██▀▄  ██     ▄    ▄  ▀██    ▄  ▀██  ▄█▀  
-       ██▄  █▀ ██    ███  ▀ ███   ▀█  ▄█   ██▀  ▄█   ██▀ ▄▄▄  
-       ▀████▀  ▄█▄   █▀      ▀█████▀ ▄██████▀  ▄██████▀ ▀█▀   
-      
+       ▄████▄   ▄█   █▄      ▄█████▄    ▄████▄   ▄████▄ ▀██▄
+       ██▀  ██ ███   ███    ███  ▄█▀   ███  ███ ███  ███  ██▄
+      ██   █▀  ▀██   ▀██    ██    ▀   ██    █▀ ██    █▀  ▄███
+      ██    ▄▄▄███▄  ██▀   ▄██▄▄▄▄▄▄  ██▄      ██▄     ▀▀████▀
+      ██      ▀███▀▀███▄ ▀▀▀███▀▀▀   ▀██████▄ ▀███████▄  ▀███
+      ██    █▄ ██▀   ▀██▀▄  ██     ▄    ▄  ▀██    ▄  ▀██  ▄█▀
+       ██▄  █▀ ██    ███  ▀ ███   ▀█  ▄█   ██▀  ▄█   ██▀ ▄▄▄
+       ▀████▀  ▄█▄   █▀      ▀█████▀ ▄██████▀  ▄██████▀ ▀█▀
+
       How to play:
       ARROW KEYS to move
       ENTER or SPACE to confirm selection
       S to save
       R to resign
 
-      INTRO
+    INTRO
+      .light_blue
   end
 
   def display_thanks_then_exit
-    puts 'Thank you for playing!'
+    puts 'Thank you for playing!'.blue
     exit(0)
   end
 
@@ -87,13 +90,20 @@ module Messages
     messages.each_key { |key| messages.delete(key) }
   end
 
-  # adds check notification
   def add_check_notification
-    notifications[:check] = "Player: #{turn_color.capitalize}, King is in check!"
+    notifications[:check] = "Player #{turn_color.capitalize}, King is in check!"
   end
 
   def add_checkmate_notification
-    notifications[:checkmate] = "Player: #{turn_color.capitalize}, Checkmate!"
+    notifications[:checkmate] = "Player #{turn_color.capitalize}, Checkmate!"
+  end
+
+  def add_draw_notification
+    notifications[:draw] = 'Game is a draw!'
+  end
+
+  def add_notification_replay
+    notifications[:replay] = "\nWould you like to play another game?\n\n[Y]es\n[N]o"
   end
 
   # adds pawn promotion message
@@ -109,22 +119,18 @@ module Messages
       PROMOTION
   end
 
-  # adds pawn en passant message
   def add_msg_en_passant(piece)
     messages[:en_passant] = "En passant was made by #{piece.color} #{piece.class}!"
   end
 
-  # adds king castling message
   def add_msg_castling(piece)
     messages[:castling] = "Castling move was made by #{piece.color} #{piece.class}!"
   end
 
-  # adds start position messsage
   def add_msg_choose_start
     messages[:choose_start] = "Player: #{turn_color.to_s.capitalize}, choose a piece to move!"
   end
 
-  # adds end position message
   def add_msg_choose_end
     messages[:choose_end] = "Player: #{turn_color.to_s.capitalize}, move your piece!"
   end
@@ -133,13 +139,9 @@ module Messages
     messages[:resign] = "\nResign game?\n\n[Y]es\n[N]o"
   end
 
-  def add_msg_replay
-    messages[:replay] = "\nWould you like to play another game?\n\n[Y]es\n[N]o"
-  end
-
   def prompt_game_type
     puts "[1] Play new game\n[2] Load game\n"
-    input = gets.chomp.to_i
+    gets.chomp.to_i
   end
 
   # prompts user for a starting position, updates key input until enter/space key is pressed
@@ -213,5 +215,3 @@ module Messages
     input
   end
 end
-
-# rubocop:enable Metrics/ModuleLength

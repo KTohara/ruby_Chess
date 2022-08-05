@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'pieces/queen'
-require 'pieces/piece'
 require 'board'
 
 describe Queen do
