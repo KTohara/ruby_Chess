@@ -17,7 +17,7 @@ class Piece
   end
 
   def to_s
-    "░#{symbol}░"
+    " #{symbol} "
   end
 
   # default boolean whether piece/postion is occupied

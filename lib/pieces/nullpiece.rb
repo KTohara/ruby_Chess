@@ -6,13 +6,13 @@ require_relative 'piece'
 class NullPiece
   attr_reader :symbol, :color
 
-  def initialize(symbol = '░', color = :none)
+  def initialize(symbol = ' ', color = :none)
     @symbol = symbol
     @color = color
   end
 
   def to_s
-    "░#{symbol}░"
+    " #{symbol} "
   end
 
   def empty?

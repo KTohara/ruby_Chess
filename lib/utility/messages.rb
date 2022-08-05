@@ -64,15 +64,18 @@ module Messages
       ██    █▄ ██▀   ▀██▀▄  ██     ▄    ▄  ▀██    ▄  ▀██  ▄█▀
        ██▄  █▀ ██    ███  ▀ ███   ▀█  ▄█   ██▀  ▄█   ██▀ ▄▄▄
        ▀████▀  ▄█▄   █▀      ▀█████▀ ▄██████▀  ▄██████▀ ▀█▀
-
+      
+      INTRO
+      .light_blue
+    puts  <<~DIRECTIONS
       How to play:
+
       ARROW KEYS to move
       ENTER or SPACE to confirm selection
-      S to save
+      B to backup save
       R to resign
 
-    INTRO
-      .light_blue
+    DIRECTIONS
   end
 
   def display_thanks_then_exit

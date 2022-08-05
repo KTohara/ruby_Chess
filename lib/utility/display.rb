@@ -81,7 +81,7 @@ module Display
     elsif (pos[0] + pos[1]).odd?
       BG_COLORS[:black]
     else
-      BG_COLORS[:white]
+      BG_COLORS[:sky]
     end
   end
 
@@ -90,6 +90,6 @@ module Display
     return piece.to_s unless cursor.selected
 
     selected_moves = selected.list_all_moves
-    selected_moves.include?(pos) ? '░●░' : piece.to_s
+    selected_moves.include?(pos) ? ' ● ' : piece.to_s
   end
 end

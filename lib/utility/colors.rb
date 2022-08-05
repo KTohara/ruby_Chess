@@ -12,10 +12,11 @@ module Colors
 
   BG_COLORS =
     {
-      black: '0',
+      black: '189',
       white: '231',
       red: '160',
       green: '49',
+      sky: '195',
       light_blue: '110',
       light_orange: '172'
     }.freeze
