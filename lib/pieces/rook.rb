@@ -8,7 +8,7 @@ class Rook < Piece
   include Sliding
 
   def symbol
-    '♜'
+    color == :white ? '♖' : '♜'
   end
 
   private

@@ -14,7 +14,7 @@ class Pawn < Piece
   end
 
   def symbol
-    '♟'
+    color == :white ? '♙' : '♟'
   end
 
   # updates @moves hash
@@ -35,6 +35,8 @@ class Pawn < Piece
   # adds a move to @moves if any space between double jump is not blocked, or pawn has not moved
   def double_jump(grid)
     move = [row + (pawn_direction * 2), col]
+    return unless valid_location?(move)
+
     add_move(move) unless double_jump_blocked?(grid) || moved
   end
 

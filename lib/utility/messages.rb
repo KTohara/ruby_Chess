@@ -64,8 +64,8 @@ module Messages
       ██    █▄ ██▀   ▀██▀▄  ██     ▄    ▄  ▀██    ▄  ▀██  ▄█▀
        ██▄  █▀ ██    ███  ▀ ███   ▀█  ▄█   ██▀  ▄█   ██▀ ▄▄▄
        ▀████▀  ▄█▄   █▀      ▀█████▀ ▄██████▀  ▄██████▀ ▀█▀
-      
-      INTRO
+
+    INTRO
       .light_blue
     puts  <<~DIRECTIONS
       How to play:
@@ -101,8 +101,13 @@ module Messages
     notifications[:checkmate] = "Player #{turn_color.capitalize}, Checkmate!"
   end
 
-  def add_draw_notification
-    notifications[:draw] = 'Game is a draw!'
+  def add_stalemate_notification
+    notifications[:draw] = "Stalemate! Player #{turn_color.capitalize} has no remaining moves"
+  end
+
+  def add_insufficient_notification
+    notifications[:draw] =
+      "Insufficient Materials! Player #{turn_color.capitalize} cannot checkmate with current pieces"
   end
 
   def add_notification_replay
@@ -123,19 +128,19 @@ module Messages
   end
 
   def add_msg_en_passant(piece)
-    messages[:en_passant] = "En passant was made by #{piece.color} #{piece.class}!"
+    messages[:en_passant] = "En passant was made by #{piece.color.capitalize} #{piece.class}!"
   end
 
   def add_msg_castling(piece)
-    messages[:castling] = "Castling move was made by #{piece.color} #{piece.class}!"
+    messages[:castling] = "Castling move was made by #{piece.color.capitalize} #{piece.class}!"
   end
 
   def add_msg_choose_start
-    messages[:choose_start] = "Player: #{turn_color.to_s.capitalize}, choose a piece to move!"
+    messages[:choose_start] = "Player #{turn_color.to_s.capitalize}, choose a piece to move!"
   end
 
   def add_msg_choose_end
-    messages[:choose_end] = "Player: #{turn_color.to_s.capitalize}, move your piece!"
+    messages[:choose_end] = "Player #{turn_color.to_s.capitalize}, move your piece!"
   end
 
   def add_msg_resign_game

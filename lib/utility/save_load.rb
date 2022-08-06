@@ -21,8 +21,8 @@ module SaveLoad
     end
     load_file = show_load_files
     load_data = File.read("./save_states/#{load_file}")
-    YAML.safe_load(load_data)
-    # File.delete("./save_states/#{save_file}")
+    YAML.load(load_data)
+    File.delete("./save_states/#{save_file}")
   end
 
   def load_exists?
@@ -31,9 +31,9 @@ module SaveLoad
     true
   end
 
-  def show_load_file
+  def show_load_files
     files = Dir.children('./save_states')
-    file_index = files.map.with_index { |file_name, i| "#{[i + 1]} #{file_name.chomp('yaml')}" }
+    file_index = files.map.with_index { |file_name, i| "#{[i + 1]} #{file_name.chomp('.yaml')}" }
     input = validate_load_game(file_index)
     files[input - 1]
   end

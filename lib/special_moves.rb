@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'utility/messages'
+
 # Handles board conditionals for specific piece special moves
 module SpecialMoves
+  include Messages
   # returns the type of special move
   def special_move_type(start_pos, end_pos)
     piece = self[start_pos]
@@ -19,9 +22,26 @@ module SpecialMoves
     piece.moves[:en_passant].include?(end_pos)
   end
 
-  # returns boolean if piece can castle
+  # returns boolean if piece can castle, raises castling error if path to castling position causes a check
   def castling_move?(piece, end_pos)
     piece.moves[:castling].include?(end_pos)
+  end
+
+  def king_castling_causes_check?(turn_color)
+    king = self[king_pos(turn_color)]
+    return false if king.moved
+
+    columns = [0, 7].select { |col| king.rook_path_clear?(grid, col) }
+    columns.any? do |rook_col|
+      rook_path(king, rook_col).any? { |move| move_causes_check?(turn_color, king.pos, move) }
+    end
+  end
+
+  # returns an array of positions from piece to rook
+  def rook_path(king, rook_col)
+    prc = proc { |col| [king.row, col] }
+    rook_col == 7 ? (king.col + 1...rook_col).map(&prc) : (rook_col + 2...king.col).map(&prc)
+    # range.map { |col| [king.row, col] }
   end
 
   # returns boolean if piece can be promoted

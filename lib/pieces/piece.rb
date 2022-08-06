@@ -65,16 +65,16 @@ class Piece
 
   private
 
-  # toggles once a piece has been moved
-  def update_moved
-    @moved = true
-  end
-
   # updates position in relation to the board after a piece has been moved
   def update_position(position)
     @pos = position
     @row = position.first
     @col = position.last
+  end
+
+  # toggles once a piece has been moved
+  def update_moved
+    @moved = true
   end
 
   # resets all moves (called after each turn)

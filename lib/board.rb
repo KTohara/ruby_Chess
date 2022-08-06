@@ -43,8 +43,8 @@ class Board
 
   # validates ending position: piece can move to position? piece does not cause check?
   def validate_end_pos(start_pos, end_pos, turn_color)
-    start_piece = self[start_pos]
-    moves = start_piece.list_all_moves
+    piece = self[start_pos]
+    moves = piece.list_all_moves
 
     raise MoveError unless moves.include?(end_pos)
     raise CheckError if move_causes_check?(turn_color, start_pos, end_pos)
@@ -67,6 +67,15 @@ class Board
   # position is empty?
   def empty?(pos)
     self[pos].empty?
+  end
+
+  def enemy_king(turn_color)
+    enemy_pieces(turn_color).find { |piece| piece.instance_of?(King) }
+  end
+
+  # finds the position of the given color's king
+  def king_pos(turn_color)
+    ally_pieces(turn_color).find { |piece| piece.instance_of?(King) }.pos
   end
 
   # check returns true if any enemy pieces have capture moves that include the king's position
@@ -125,11 +134,6 @@ class Board
       pos = row, col
       self[pos] = Pawn.new(color, pos)
     end
-  end
-
-  # finds the position of the given color's king
-  def king_pos(turn_color)
-    ally_pieces(turn_color).find { |piece| piece.instance_of?(King) }.pos
   end
 
   # updates moves for all pieces on the board

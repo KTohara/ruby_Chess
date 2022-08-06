@@ -4,10 +4,10 @@ require 'io/console'
 
 KEYMAP = {
   ' ' => :space,
-  # 'w' => :up,
-  # 's' => :down,
-  # 'a' => :left,
-  # 'd' => :right,
+  'w' => :up,
+  's' => :down,
+  'a' => :left,
+  'd' => :right,
   'b' => :b,
   'r' => :r,
   "\t" => :tab,

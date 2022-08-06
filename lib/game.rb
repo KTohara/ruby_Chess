@@ -34,7 +34,8 @@ class Game
   def play_turn
     player_move
     switch_player
-    board_check_notifications
+    toggle_castling
+    board_check
   rescue StandardError => e
     notifications[:error] = e.message
     cursor.selected = false
@@ -46,6 +47,7 @@ class Game
     start_pos, end_pos = player_input
     special_moves(start_pos, end_pos)
     board.move_piece(start_pos, end_pos)
+    board[end_pos]
   end
 
   # *prompts in module Messages
@@ -78,8 +80,15 @@ class Game
     @turn_color = turn_color == :white ? :black : :white
   end
 
+  # toggles castling if king causes check while castling or if player is in check
+  def toggle_castling
+    check_status = board.king_castling_causes_check?(turn_color) || board.check?(turn_color)
+    king = board[board.king_pos(turn_color)]
+    king.update_castling(check_status)
+  end
+
   # if the board is in check, adds a 'board in check' message to @notification or resets notifications
-  def board_check_notifications
+  def board_check
     board.check?(turn_color) ? add_check_notification : reset_notifications
   end
 
@@ -101,7 +110,13 @@ class Game
   # renders board with checkmate or draw notification
   def game_result
     reset_notifications
-    board.checkmate?(turn_color) ? add_checkmate_notification : add_draw_notification
+    if board.stalemate?(turn_color)
+      add_stalemate_notification
+    elsif board.insufficient_material?(turn_color)
+      add_insufficient_notification
+    else
+      add_checkmate_notification
+    end
     render(board.grid)
   end
 
@@ -112,3 +127,7 @@ class Game
     input == 'y' ? Game.new.play : display_thanks_then_exit
   end
 end
+
+# king may not castle while in check
+# king may not travel through check
+#

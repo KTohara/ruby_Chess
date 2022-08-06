@@ -105,6 +105,7 @@ describe King do
         ]
       end
       it 'should handle king side castling' do
+        allow(bki).to receive(:castling).and_return(true)
         allow(bki).to receive(:moved).and_return(false)
         allow(brk).to receive(:instance_of?).with(Rook).and_return(true)
         bki.update_moves(grid, last_move)
@@ -113,6 +114,7 @@ describe King do
       end
 
       it 'should handle queen side castling' do
+        allow(wki).to receive(:castling).and_return(true)
         allow(wki).to receive(:moved).and_return(false)
         allow(wrk).to receive(:instance_of?).with(Rook).and_return(true)
         wki.update_moves(grid, last_move)
@@ -138,21 +140,28 @@ describe King do
           [wrk, emp, emp, emp, wki, emp, emp, emp]
         ]
       end
-      it 'cannot castle if there is a piece between rooks' do
+      it 'will not add a move if castling is disabled' do
+        allow(bki).to receive(:castling).and_return(false)
+        bki.update_moves(grid, last_move)
+        king_castling = bki.moves[:castling]
+        expect(king_castling).to be_empty
+      end
+
+      it 'will not add a move if there is a piece between rooks' do
         allow(bki).to receive(:moved).and_return(false)
         bki.update_moves(grid, last_move)
         king_castling = bki.moves[:castling]
         expect(king_castling).to be_empty
       end
 
-      it 'cannot castle if the king moved' do
+      it 'will not add a move if the king has been moved' do
         allow(bki).to receive(:moved).and_return(true)
         bki.update_moves(grid, last_move)
         king_castling = bki.moves[:castling]
         expect(king_castling).to be_empty
       end
 
-      it 'cannot castle if the rook has been moved' do
+      it 'will not add a move if the rook has been moved' do
         allow(wrk).to receive(:moved).and_return(true)
         wki.update_moves(grid, last_move)
         queen_castling = wki.moves[:castling]
