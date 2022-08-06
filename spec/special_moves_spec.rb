@@ -199,29 +199,89 @@ describe SpecialMoves do
     end
   end
 
-  describe '#valid_pos?' do
-    context 'when given an array with two indicies' do
-      it 'should return true if the pos indicies are between 0 and 7' do
-        expect(board.valid_pos?([5, 1])).to be true
-      end
+  describe '#king_castling_causes_check' do
+    let(:bki) { King.new(:black, [0, 4]) }
+    let(:brk) { Rook.new(:black, [0, 7]) }
+    let(:wrk) { Rook.new(:white, [7, 5]) }
+    let(:last_move) { nil }
+    let(:emp) { NullPiece.new }
+    let(:grid) do
+      [
+        [emp, emp, emp, emp, bki, emp, emp, brk],
+        [emp, emp, emp, emp, emp, emp, emp, emp],
+        [emp, emp, emp, emp, emp, emp, emp, emp],
+        [emp, emp, emp, emp, emp, emp, emp, emp],
+        [emp, emp, emp, emp, emp, emp, emp, emp],
+        [emp, emp, emp, emp, emp, emp, emp, emp],
+        [emp, emp, emp, emp, emp, emp, emp, emp],
+        [emp, emp, emp, emp, emp, wrk, emp, emp]
+      ]
+    end
+    before { board.instance_variable_set(:@grid, grid) }
 
-      it 'should return false if the pos indicies are not between 0 and 7' do
-        expect(board.valid_pos?([-1, -10])).to be false
-        expect(board.valid_pos?([8, 99])).to be false
-        expect(board.valid_pos?([1, 11])).to be false
-        expect(board.valid_pos?([11, 1])).to be false
+    it 'returns false if the king has moved' do
+      allow(bki).to receive(:moved).and_return(true)
+      allow(bki).to receive(:castling).and_return(true)
+      bki.update_moves(grid, last_move)
+      expect(board.king_castling_causes_check?(bki.color)).to be false
+    end
+
+    context "when the king's castling path causes a check" do
+      it 'returns true' do
+        allow(bki).to receive(:moved).and_return(false)
+        allow(bki).to receive(:castling).and_return(true)
+        bki.update_moves(grid, last_move)
+        expect(board.king_castling_causes_check?(bki.color)).to be true
+      end
+    end
+
+    context "when the king's castling path is clear" do
+      let(:wrk) { Rook.new(:white, [7, 3]) }
+      let(:grid) do
+        [
+          [emp, emp, emp, emp, bki, emp, emp, brk],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, wrk, emp, emp, emp, emp]
+        ]
+      end
+      it 'returns false' do
+        board.instance_variable_set(:@grid, grid)
+        allow(bki).to receive(:moved).and_return(false)
+        allow(bki).to receive(:castling).and_return(true)
+        bki.update_moves(grid, last_move)
+        expect(board.king_castling_causes_check?(bki.color)).to be false
       end
     end
   end
 
-  describe '#empty?' do
-    context 'when given an array with two indicies' do
-      it 'should return true if the position is empty' do
-        expect(board.empty?([5, 5])).to be true
-      end
+  describe '#castling_path' do
+    let(:king) { instance_double(King, row: 7, col: 4) }
+    context 'when the rook is king side' do
+      let(:rook_column) { 7 }
 
-      it 'should return false if the position is taken by a piece' do
-        expect(board.empty?([0, 0])).to be false
+      it 'returns a an array of positions from the king to rook' do
+        expect(board.castling_path(king, rook_column)).to contain_exactly([7, 5], [7, 6])
+      end
+    end
+
+    context 'when the rook is queen side' do
+      let(:rook_column) { 0 }
+
+      it 'returns a an array of positions from the king to rook' do
+        expect(board.castling_path(king, rook_column)).to contain_exactly([7, 2], [7, 3])
+      end
+    end
+
+    context "when the rook is not in it's original column" do
+      let(:rook_column) { 5 }
+
+      it 'returns an empty array' do
+        expect(board.castling_path(king, rook_column)).to be_empty
       end
     end
   end

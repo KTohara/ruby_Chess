@@ -27,23 +27,6 @@ module SpecialMoves
     piece.moves[:castling].include?(end_pos)
   end
 
-  def king_castling_causes_check?(turn_color)
-    king = self[king_pos(turn_color)]
-    return false if king.moved
-
-    columns = [0, 7].select { |col| king.rook_path_clear?(grid, col) }
-    columns.any? do |rook_col|
-      rook_path(king, rook_col).any? { |move| move_causes_check?(turn_color, king.pos, move) }
-    end
-  end
-
-  # returns an array of positions from piece to rook
-  def rook_path(king, rook_col)
-    prc = proc { |col| [king.row, col] }
-    rook_col == 7 ? (king.col + 1...rook_col).map(&prc) : (rook_col + 2...king.col).map(&prc)
-    # range.map { |col| [king.row, col] }
-  end
-
   # returns boolean if piece can be promoted
   def promotion_move?(piece)
     piece.instance_of?(Pawn) && piece.promotable?
@@ -85,6 +68,25 @@ module SpecialMoves
     self[piece.pos] = piece
   end
 
+  # returns true if simulating a castling causes check
+  def king_castling_causes_check?(turn_color)
+    king = self[king_pos(turn_color)]
+    return false if king.moves[:castling].empty?
+
+    columns = [0, 7].select { |col| king.rook_path_clear?(grid, col) }
+    columns.any? do |rook_col|
+      castling_path(king, rook_col).any? { |move| move_causes_check?(turn_color, king.pos, move) }
+    end
+  end
+
+  # returns an array of positions from piece to castling end position
+  def castling_path(king, rook_col)
+    return [] unless [7, 0].include?(rook_col) && grid[king.row][rook_col].instance_of?(Rook)
+
+    prc = proc { |col| [king.row, col] }
+    rook_col == 7 ? (king.col + 1...rook_col).map(&prc) : (rook_col + 2...king.col).map(&prc)
+  end
+
   private
 
   # returns all pieces on the board (white and black, no null)
@@ -116,22 +118,29 @@ module SpecialMoves
     [[row, old_rook_col], [row, new_rook_col]]
   end
 
-  # INSUFFICIENT MATERIAL HELPERS NEED REFACTORING
   # returns true if only kings remain
-  def only_kings?
-    pieces.all? { |piece| piece.instance_of?(King) }
+  def only_king?(turn_color)
+    ally_pieces(turn_color).all? { |piece| piece.instance_of?(King) }
   end
 
-  # returns true if all pieces are kings and bishops, and if bishops are of the same square color
-  def only_kings_bishops?
-    same_color_bishops? && pieces.all? { |piece| piece.instance_of?(King) || piece.instance_of?(Bishop) }
+  # returns true if remaining ally pieces are king and bishop
+  # and if all bishops on board occupy same color square
+  def only_king_bishop?(turn_color)
+    same_color_bishops? &&
+      ally_pieces(turn_color).all? do |piece|
+        piece.instance_of?(King) || piece.instance_of?(Bishop)
+      end
   end
 
-  def only_kings_knights?
-    pieces.all? { |piece| piece.instance_of?(King) || piece.instance_of?(Knight) } &&
-      pieces.one? { |piece| piece.instance_of?(Knight) }
+  # returns true remaining ally pieces remaining are king and knight
+  def only_king_knight?(turn_color)
+    remaining = ally_pieces(turn_color)
+
+    remaining.all? { |piece| piece.instance_of?(King) || piece.instance_of?(Knight) } &&
+      remaining.one? { |piece| piece.instance_of?(Knight) }
   end
 
+  # returns true if all bishops on board occupy the same colored square
   def same_color_bishops?
     bishops = pieces.select { |piece| piece.instance_of?(Bishop) }
     bishops.all? { |bishop| bishop.pos.sum.even? } || bishops.all? { |bishop| bishop.pos.sum.odd? }

@@ -25,7 +25,10 @@ class King < Piece
     queen_side_castling(grid) if castling
   end
 
+  # toggles @castling when board in check or castling move causes check
   def update_castling(check)
+    return @castling = false if moved
+
     @castling = !check
   end
 
@@ -65,10 +68,11 @@ class King < Piece
     add_castling(queen_side_pos) if rook_path_clear?(grid, rook_col)
   end
 
+  # returns true if king and rook are eligible for castling
   def castling_conditions?(piece)
     return false if piece.empty?
 
-    piece.instance_of?(Rook) || !piece.moved || !moved
+    piece.instance_of?(Rook) && !piece.moved && !moved
   end
 
   # adds the castling move to the move hash

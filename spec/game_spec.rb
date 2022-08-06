@@ -4,6 +4,7 @@ require 'game'
 
 describe Game do
   subject(:game) { described_class.new }
+  let(:board) { game.board }
 
   describe '#play' do
     context 'when the game finishes in one turn' do
@@ -43,22 +44,47 @@ describe Game do
     end
   end
 
-  describe '#board_check_notification' do
+  describe '#board_check' do
     it 'sets a notification when board is in check' do
       allow(game.board).to receive(:check?).and_return(true)
-      expect { game.board_check_notifications }.to change { game.notifications }
+      expect { game.board_check }.to change { game.notifications }
     end
 
     it 'resets notifications when board is not in check' do
       game.notifications[:notifications] = 'test_message'
       allow(game.board).to receive(:check?).and_return(false)
-      expect { game.board_check_notifications }.to change { game.notifications[:notifications] }.from('test_message').to(nil)
+      expect { game.board_check }.to change { game.notifications[:notifications] }.from('test_message').to(nil)
+    end
+  end
+
+  describe '#toggle_castling' do
+    let(:turn_color) { game.turn_color }
+    let(:king) { board[[7, 4]] }
+    context 'when the board is in check' do
+      it "updates castling for the current player's king" do
+        allow(board).to receive(:check?).and_return(true)
+        expect(king).to receive(:update_castling)
+        game.toggle_castling
+      end
+    end
+
+    context "when the current player's king castling causes check" do
+      it "updates castling for the current player's king" do
+        allow(board).to receive(:king_castling_causes_check?).and_return(true)
+        expect(king).to receive(:update_castling)
+        game.toggle_castling
+      end
     end
   end
 
   describe '#game_over' do
     it 'sends board #checkmate?' do
       expect(game.board).to receive(:checkmate?)
+      game.game_over?
+    end
+
+    it 'sends board #stalemate?' do
+      expect(game.board).to receive(:stalemate?)
       game.game_over?
     end
 

@@ -102,42 +102,6 @@ describe Board do
     end
   end
 
-  describe '#valid_pos?' do
-    let(:valid_pos_one) { [1, 2] }
-    let(:invalid_pos) { [-25, 16] }
-
-    context 'when the position is between 1 and 7' do
-      it 'should return true' do
-        expect(board).to be_valid_pos(valid_pos_one)
-      end
-    end
-
-    context 'when the position is not between 1 and 7' do
-      it 'should return false' do
-        expect(board).to_not be_valid_pos(invalid_pos)
-      end
-    end
-  end
-
-  describe '#empty?' do
-    it 'should take in a array of indices as an argument' do
-      expect { board.empty?([3, 0]) }.not_to raise_error
-    end
-
-    context 'when the position given is empty' do
-      it 'should return true' do
-        expect(board).to be_empty([3, 0])
-      end
-    end
-
-    context 'when the position given is not empty' do
-      it 'should return false' do
-        grid[3][0] = 'hello'
-        expect(board).not_to be_empty([3, 0])
-      end
-    end
-  end
-
   describe '#validate_start_pos' do
     let(:turn_color) { :white }
     let(:black_pawn_a7) { [1, 0] }
@@ -396,7 +360,8 @@ describe Board do
     let(:wki) { King.new(:white, [7, 5]) }
     let(:emp) { NullPiece.new }
 
-    context 'when only kings or bishops remain' do
+    context 'when only kings or bishops of same colored squares remain' do
+      let(:bbi) { Bishop.new(:black, [4, 6]) }
       let(:wbi) { Bishop.new(:white, [5, 7]) }
       let(:grid) do
         [
@@ -404,7 +369,7 @@ describe Board do
           [emp, emp, emp, emp, emp, emp, emp, emp],
           [emp, emp, emp, emp, emp, emp, emp, emp],
           [emp, emp, emp, emp, emp, emp, emp, emp],
-          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, bbi, emp],
           [emp, emp, emp, emp, emp, emp, emp, wbi],
           [emp, emp, emp, emp, emp, emp, emp, emp],
           [emp, emp, emp, emp, emp, wki, emp, bki]
@@ -504,9 +469,8 @@ describe Board do
       end
     end
 
-    context 'when there are only kings and knights remaining' do
+    context 'when there are only two kings and two knights remaining' do
       let(:wkn) { Knight.new(:white, [1, 0]) }
-      let(:wk2) { Knight.new(:white, [2, 0]) }
       let(:bkn) { Knight.new(:black, [1, 1]) }
       let(:grid) do
         [
@@ -532,6 +496,28 @@ describe Board do
       let(:grid) do
         [
           [emp, emp, emp, emp, emp, emp, emp, emp],
+          [wkn, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, emp, emp, emp],
+          [emp, emp, emp, emp, emp, wki, emp, bki]
+        ]
+      end
+
+      it 'returns true' do
+        board.instance_variable_set(:@grid, grid)
+        expect(board.insufficient_material?).to eq(true)
+      end
+    end
+
+    context 'when white has king knight, and black has king bishop' do
+      let(:wkn) { Knight.new(:white, [1, 0]) }
+      let(:bbi) { Bishop.new(:black, [0, 0]) }
+      let(:grid) do
+        [
+          [bbi, emp, emp, emp, emp, emp, emp, emp],
           [wkn, emp, emp, emp, emp, emp, emp, emp],
           [emp, emp, emp, emp, emp, emp, emp, emp],
           [emp, emp, emp, emp, emp, emp, emp, emp],

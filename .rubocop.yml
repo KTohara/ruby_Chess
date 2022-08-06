@@ -4,7 +4,6 @@ AllCops:
   NewCops: enable
 Metrics:
   Exclude:
-    - "lib/board.rb"
     - "lib/utility/*"
     - "spec/**/*"
 Metrics/BlockLength:

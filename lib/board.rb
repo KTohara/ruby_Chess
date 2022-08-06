@@ -19,7 +19,7 @@ class Board
 
   # returns element on grid by position
   def [](pos)
-    raise PositionError unless valid_pos?(pos)
+    raise PositionError unless pos.all? { |axis| axis.between?(0, 7) }
 
     row, col = pos
     @grid[row][col]
@@ -27,7 +27,7 @@ class Board
 
   # changes element on grid to a given piece, based on grid position
   def []=(pos, piece)
-    raise PositionError unless valid_pos?(pos)
+    raise PositionError unless pos.all? { |axis| axis.between?(0, 7) }
 
     row, col = pos
     @grid[row][col] = piece
@@ -37,7 +37,7 @@ class Board
   def validate_start_pos(turn_color, start_pos)
     piece = self[start_pos]
 
-    raise SquareError if empty?(start_pos)
+    raise SquareError if piece.empty?
     raise OpponentError if piece.color != turn_color
   end
 
@@ -57,20 +57,6 @@ class Board
     self[start_pos] = NullPiece.new
     piece.update(end_pos, grid)
     @last_move = end_pos
-  end
-
-  # position is in bounds of grid
-  def valid_pos?(pos)
-    pos.all? { |axis| axis.between?(0, 7) }
-  end
-
-  # position is empty?
-  def empty?(pos)
-    self[pos].empty?
-  end
-
-  def enemy_king(turn_color)
-    enemy_pieces(turn_color).find { |piece| piece.instance_of?(King) }
   end
 
   # finds the position of the given color's king
@@ -101,9 +87,11 @@ class Board
     end
   end
 
-  # needs tests
+  # checks if players do not have enough pieces to checkmate
   def insufficient_material?
-    only_kings_bishops? || only_kings_knights? || only_kings?
+    %i[white black].all? do |turn_color|
+      only_king_bishop?(turn_color) || only_king_knight?(turn_color) || only_king?(turn_color)
+    end
   end
 
   private

@@ -50,7 +50,6 @@ class Game
     board[end_pos]
   end
 
-  # *prompts in module Messages
   # prompts for start and end position, validates both, returns position
   def player_input
     start_pos = prompt_start_pos
@@ -67,7 +66,6 @@ class Game
     resign_game if input == :resign
   end
 
-  # *msg in module Messages
   # determines special move type, outputs a message depending on move, executes the move
   def special_moves(start_pos, end_pos)
     special_move = board.special_move_type(start_pos, end_pos)
@@ -110,12 +108,12 @@ class Game
   # renders board with checkmate or draw notification
   def game_result
     reset_notifications
-    if board.stalemate?(turn_color)
-      add_stalemate_notification
-    elsif board.insufficient_material?(turn_color)
+    if board.checkmate?(turn_color)
+      add_checkmate_notification
+    elsif board.insufficient_material?
       add_insufficient_notification
     else
-      add_checkmate_notification
+      add_stalemate_notification
     end
     render(board.grid)
   end
