@@ -29,6 +29,9 @@ Press the green run button at the top of the page.
 
 ### Thoughts
 This was the final project for the Ruby curriculum for the Odin Project. I learned a TON from this.
+
+I had run into this project via App Academy, but this was the first time building it. I used resources from both TOP and AA to come up with the guide lines of what I wanted for the project
+
 Most of it was coded in tandem with TDD, but there were definitely points where I needed to code first, then test, then go back into refactoring.
 
 *Do your best to keep your classes modular and clean and your methods doing only one thing each.*
