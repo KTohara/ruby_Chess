@@ -83,13 +83,13 @@ module Display
   # changes the background color depending on circumstance
   def back_color(pos)
     if cursor.cursor_pos == pos && cursor.selected
-      BG_COLORS[:light_orange]
+      BG_COLORS[:orange]
     elsif cursor.cursor_pos == pos
-      BG_COLORS[:light_blue]
+      BG_COLORS[:purple]
     elsif (pos[0] + pos[1]).odd?
-      BG_COLORS[:black]
-    else
       BG_COLORS[:sky]
+    else
+      BG_COLORS[:white]
     end
   end
 

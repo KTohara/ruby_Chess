@@ -17,8 +17,8 @@ module Colors
       red: '160',
       green: '49',
       sky: '69',
-      light_blue: '99',
-      light_orange: '172'
+      purple: '99',
+      orange: '172'
     }.freeze
 end
 
