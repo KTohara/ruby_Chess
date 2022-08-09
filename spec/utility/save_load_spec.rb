@@ -9,7 +9,7 @@ describe SaveLoad do
 
   before { test_class.instance_variable_set(:@board, board) }
 
-  after(:all) { File.delete(File.join(Dir.pwd, '/save_states/test.yaml')) }
+  # after(:all) { File.delete(File.join(Dir.pwd, '/save_states/test.yaml')) }
 
   describe '#save_game' do
     before do
@@ -40,12 +40,16 @@ describe SaveLoad do
     before do
       allow(test_class).to receive(:puts)
       allow(test_class).to receive(:exit)
+      test_class.save_game('test')
     end
-
-    before { test_class.save_game('test') }
 
     it 'loads the game' do
       expect(YAML).to receive(:safe_load)
+      test_class.load_game('test.yaml')
+    end
+
+    it 'deletes the file' do
+      expect(File).to receive(:delete)
       test_class.load_game('test.yaml')
     end
 

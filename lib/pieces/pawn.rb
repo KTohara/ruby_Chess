@@ -138,8 +138,4 @@ class Pawn < Piece
   def add_en_passant(ep_pos)
     moves[:en_passant] << ep_pos
   end
-
-  # def add_promotion(prom_move)
-  #   moves[:promotion] << prom_move
-  # end
 end

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # Translates a move made by a piece into Algebraic Notation
 class Notation
   LETTERS = ('a'..'h').to_a.freeze
@@ -17,15 +15,13 @@ class Notation
     captures: 'x',
     king_castle: '0-0',
     queen_castle: '0-0-0',
-    en_passant: 'x',
-    promotion: '='
+    en_passant: 'x'
   }.freeze
 
-  attr_reader :moves, :piece, :start_pos, :end_pos, :move_type, :color, :promotion, :promotion_type, :check
+  attr_reader :moves, :piece, :start_pos, :end_pos, :move_type, :color, :promotion, :promotion_type
 
   def initialize
     @moves = []
-    @check = nil
   end
 
   def add_stats(piece, move_type, end_pos, promotion, promotion_type = nil)
@@ -48,11 +44,15 @@ class Notation
   def translate(grid)
     return castling_type if move_type == :castling
 
-    to_pc + disambiguation(grid) + to_move + pos_to_alg + to_prom + to_prom_type + to_ep
+    to_pc + disambiguation(grid) + to_move + pos_to_alg(end_pos) + to_prom + to_prom_type + to_ep
   end
 
   def to_pc
     CLASSES[class_type]
+  end
+
+  def class_type
+    piece.class.to_s.downcase.to_sym
   end
 
   # returns the row or col as letter or number if there are multiple pieces that can make the same move
@@ -82,23 +82,21 @@ class Notation
     mirror_row == row ? LETTERS[col] : NUMBERS[row]
   end
 
-  # returns the corresponding move type as algebraic notation type
+  # returns the corresponding move type as algebraic notation
   def to_move
     return pawn_move_type if piece.instance_of?(Pawn)
 
     MOVE_TYPES[move_type]
   end
 
+  # returns the annotated pawn row and move type
   def pawn_move_type
     pawn_cap + MOVE_TYPES[move_type]
   end
 
+  # returns the annotated row, unless move type is :moves
   def pawn_cap
-    move_type == :captures || move_type == :en_passant ? to_let(piece.col) : ''
-  end
-
-  def class_type
-    piece.class.to_s.downcase.to_sym
+    move_type == :captures || move_type == :en_passant ? to_let(start_pos.first) : ''
   end
 
   # returns the type of castling
@@ -109,8 +107,8 @@ class Notation
   end
 
   # converts position indicies to algebraic notation by letter and number
-  def pos_to_alg
-    row, col = end_pos
+  def pos_to_alg(pos)
+    row, col = pos
     to_let(col) + to_num(row)
   end
 
@@ -124,10 +122,12 @@ class Notation
     NUMBERS[row]
   end
 
+  # converts to '=' if promotion is true
   def to_prom
     promotion ? '=' : ''
   end
 
+  # converts promotion type (1 - 4) to class as uppercase string
   def to_prom_type
     promotion_type.nil? ? '' : %w[R N B Q][promotion_type - 1]
   end
@@ -139,18 +139,14 @@ class Notation
     move_type == :en_passant ? ' e.p.' : ''
   end
 
+  # inserts a check to the very last move when board is in check
+  # if en passant is a part of the move, adds the check before e.p
   def add_check
-    move = moves.last.last
-    move.match?(/ .e.p/) ? move.insert(-6, '+') : move.concat('+')
+    moves[-1][-1].match?(/ .e.p./) ? moves[-1][-1].insert(-6, '+') : moves[-1][-1] += '+'
   end
 
+  # subs the check for checkmate when board is in checkmate
   def add_checkmate
-    move = moves.last.last
-    move.gsub!('+', '#')
-  end
-
-  def reset
-    @promotion = nil
-    @promotion = nil
+    moves[-1][-1] = moves[-1][-1].gsub('+', '#')
   end
 end
