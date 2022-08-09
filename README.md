@@ -34,10 +34,7 @@ I had run into this project via App Academy, but this was the first time buildin
 
 Most of it was coded in tandem with TDD, but there were definitely points where I needed to code first, then test, then go back into refactoring.
 
-*Do your best to keep your classes modular and clean and your methods doing only one thing each.*
-*This is the largest program that you’ve written, so you’ll definitely start to see the benefits of good organization (and testing) when you start running into bugs.*
-
 I started to code this project with a decent outline of what I wanted. Unfortunately, there were some points during the project where I felt there should have been better planning on my part.
-I think overall, having a UML diagram or overall structure of where everything needed to go would have been super helpful for me.
+Having a UML diagram or overall structure of where everything needed to go would have been super helpful for me.
 
 Overall, this was a fun and challenging project! I would love to look back at this some day and really look at how much I could improve (Which I already understand; there is a lot).
