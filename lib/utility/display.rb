@@ -69,14 +69,14 @@ module Display
 
   # changes the color of the piece depending on circumstance
   def fore_color(piece, pos, selected = nil)
-    return COLORS[piece.color] unless cursor.selected
+    return COLORS[:black] unless cursor.selected
 
     if selected.moves[:moves].include?(pos) || selected.moves[:castling].include?(pos)
       COLORS[:red]
     elsif selected.moves[:captures].include?(pos) || selected.moves[:en_passant].include?(pos)
       COLORS[:green]
     else
-      COLORS[piece.color]
+      COLORS[:black]
     end
   end
 
