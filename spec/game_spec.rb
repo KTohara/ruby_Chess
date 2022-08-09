@@ -45,15 +45,26 @@ describe Game do
   end
 
   describe '#board_check' do
-    it 'sets a notification when board is in check' do
-      allow(game.board).to receive(:check?).and_return(true)
-      expect { game.board_check }.to change { game.notifications }
+    context 'when board is in check' do
+      it 'sets a check notification' do
+        allow(game.board).to receive(:check?).and_return(true)
+        allow(game.notation).to receive(:add_check)
+        expect { game.board_check }.to change { game.notifications }
+      end
+
+      it 'sends notation #add_check?' do
+        allow(game.board).to receive(:check?).and_return(true)
+        expect(game.notation).to receive(:add_check)
+        game.board_check
+      end
     end
 
-    it 'resets notifications when board is not in check' do
-      game.notifications[:notifications] = 'test_message'
-      allow(game.board).to receive(:check?).and_return(false)
-      expect { game.board_check }.to change { game.notifications[:notifications] }.from('test_message').to(nil)
+    context 'when board is not in check' do
+      it 'resets notifications when board is not in check' do
+        game.notifications[:notifications] = 'test_message'
+        allow(game.board).to receive(:check?).and_return(false)
+        expect { game.board_check }.to change { game.notifications[:notifications] }.from('test_message').to(nil)
+      end
     end
   end
 

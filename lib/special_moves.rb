@@ -5,6 +5,7 @@ require_relative 'utility/messages'
 # Handles board conditionals for specific piece special moves
 module SpecialMoves
   include Messages
+
   # returns the type of special move
   def special_move_type(start_pos, end_pos)
     piece = self[start_pos]

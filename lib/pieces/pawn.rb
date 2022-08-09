@@ -29,6 +29,7 @@ class Pawn < Piece
   # adds a move to @moves if the single jump is empty and within bounds of grid
   def single_jump(grid)
     move = [row + pawn_direction, col]
+
     add_move(move) if valid_location?(move) && piece_one_ahead(grid).empty?
   end
 
@@ -48,6 +49,7 @@ class Pawn < Piece
       cy = col + capture_direction
       capture_pos = [cx, cy]
       capture_piece = grid[cx][cy]
+
       add_capture(capture_pos) if valid_location?(capture_pos) && enemy?(capture_piece)
     end
   end
@@ -136,4 +138,8 @@ class Pawn < Piece
   def add_en_passant(ep_pos)
     moves[:en_passant] << ep_pos
   end
+
+  # def add_promotion(prom_move)
+  #   moves[:promotion] << prom_move
+  # end
 end

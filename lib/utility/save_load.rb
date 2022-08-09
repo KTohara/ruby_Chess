@@ -24,7 +24,8 @@ module SaveLoad
     game = YAML.safe_load(
       load_data,
       aliases: true,
-      permitted_classes: [Symbol, Game, Board, Cursor, Player, King, Queen, Pawn, Rook, Bishop, Knight, NullPiece]
+      permitted_classes:
+        [Symbol, Game, Board, Cursor, Player, King, Queen, Pawn, Rook, Bishop, Knight, NullPiece, Notation]
     )
     File.delete("./save_states/#{load_file}")
     game

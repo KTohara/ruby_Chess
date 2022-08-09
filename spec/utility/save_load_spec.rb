@@ -9,7 +9,7 @@ describe SaveLoad do
 
   before { test_class.instance_variable_set(:@board, board) }
 
-  # after(:all) { File.delete(File.join(Dir.pwd, '/save_states/test.yaml')) }
+  after(:all) { File.delete(File.join(Dir.pwd, '/save_states/test.yaml')) }
 
   describe '#save_game' do
     before do

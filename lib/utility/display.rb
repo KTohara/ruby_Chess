@@ -13,14 +13,22 @@ module Display
   # if given, selected gets mapped as the cursor
   def render(grid, selected = nil)
     system('clear')
-    puts display_input_banner.blue
+    puts display_input_banner
     puts display_board(grid, selected)
+    puts display_notation
     display_messages
     display_notifications
   end
 
   def display_input_banner
-    " SAVE: S #{VERT} RESIGN: D #{VERT} SELECT: RETURN / SPACE\n"
+    " Save: S #{VERT} Resign: D #{VERT} Select: RETURN / SPACE\n".light_blue
+  end
+
+  # maps notation with turn and displays 5 notations per line
+  def display_notation
+    notation_moves = notation.moves.map.with_index { |turn, num| ["#{(num + 1).to_s.light_blue}."] + turn }
+    formatted = notation_moves.each_slice(5).map { |line| " #{line.join(' ')}" }
+    "\n #{'Notations'.light_blue}:\n#{formatted.join("\n")}\n\n"
   end
 
   # maps the board with column letters and row numbers

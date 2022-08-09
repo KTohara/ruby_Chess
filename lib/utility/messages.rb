@@ -173,6 +173,7 @@ module Messages
       render(board.grid, piece)
       # p piece.moves # use to debug
       # p board[start_pos] # use to debug
+      # p notation.moves # use to debug
       end_pos = cursor.key_input
     end
     reset_notifications
