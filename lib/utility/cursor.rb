@@ -99,14 +99,4 @@ class Cursor
     new_pos = [row + dx, col + dy]
     @cursor_pos = new_pos if new_pos.all? { |axis| axis.between?(0, 7) }
   end
-
-  # WIP
-  def save
-    raise 'saving'
-  end
-
-  # WIP
-  def resign
-    raise 'resign game'
-  end
 end
